@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-image.png',
         width: 1200,
         height: 1200,
         alt: "도와줘룸즈 AI챗봇 '루미' 대표 이미지",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "도와줘룸즈 AI챗봇 '루미'",
     description: '청년들의 주거·정책 고민을 해결하는 도와줘룸즈 맞춤 AI 안내봇',
-    images: ['/og-image.jpg'],
+    images: ['/og-image.png'],
   },
 };
 
