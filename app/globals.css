@@ -1,6 +1,6 @@
 /* ============================================
-   globals.css — 도와줘룸즈 AI챗봇 '루미' 디자인 시스템
-   '도와줘룸즈 (helproomz.imweb.me)' 시그니처 시안 스카이 블루 테마
+   globals.css — 청년정책 AI봇 전체 스타일
+   '대전서구 청년공간 청춘스럽' 브랜드 딥블루 테마 (#1B2A80)
    ============================================ */
 
 /* ===== 기본 초기화 ===== */
@@ -11,39 +11,39 @@
 }
 
 :root {
-  /* ===== 도와줘룸즈 공식 브랜드 컬러 시스템 ===== */
-  --helproomz-blue:        #2BB7EC;  /* 도와줘룸즈 시그니처 스카이 블루 */
-  --helproomz-blue-dark:   #009FD9;  /* 딥 스카이 블루 */
-  --helproomz-blue-light:  #E8FAFF;  /* 파스텔 수분 블루 */
-  --helproomz-accent:      #FFB800;  /* 옐로우 포인트 */
-  --helproomz-orange:      #FF6B00;  /* 오렌지 포인트 */
+  /* ===== 청춘스럽 공식 브랜드 컬러 시스템 ===== */
+  --chungchun-blue:        #1B2A80;  /* C100 M95 Y5 K0 — 딥 블루 */
+  --chungchun-blue-light:  #2B3EA6;
+  --chungchun-yellow:      #F5B800;  /* C6 M26 Y98 K0 — 옐로우 포인트 */
+  --chungchun-orange:      #F04E23;  /* C0 M80 Y95 K0 — 오렌지 */
+  --chungchun-dark-gray:   #22252A;
 
   /* ===== 디자인 토큰 ===== */
-  --primary:        var(--helproomz-blue);
-  --primary-light:  #58D3F8;
-  --primary-dark:   var(--helproomz-blue-dark);
-  --accent:         var(--helproomz-accent);
-  --accent-light:   #FFF6D6;
-  --accent-orange:  var(--helproomz-orange);
+  --primary:        var(--chungchun-blue);
+  --primary-light:  #3D52D5;
+  --primary-dark:   #121C59;
+  --accent:         var(--chungchun-yellow);
+  --accent-light:   #FFF3C4;
+  --accent-orange:  var(--chungchun-orange);
 
-  --bg-page:        #EBF8FF;  /* 도와줘룸즈 맑은 파스텔 하늘색 배경 */
+  --bg-page:        #EFF4FA;  /* 파스텔 소라색 배경 */
   --bg-card:        #FFFFFF;
-  --bg-elevated:    #F2F9FD;
-  --bg-input:       #F0F8FD;
+  --bg-elevated:    #F7FAFE;
+  --bg-input:       #F0F4FA;
 
-  --text-primary:   #1E293B;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
+  --text-primary:   #1E2538;
+  --text-secondary: #586788;
+  --text-muted:     #8C9BAE;
 
-  --border:         #D4EEFC;
-  --border-hover:   var(--helproomz-blue);
+  --border:         #DCE4F0;
+  --border-hover:   #1B2A80;
 
-  --user-bubble:    linear-gradient(135deg, #2BB7EC, #009FD9);
-  --ai-bubble:      #F4FAFF;
+  --user-bubble:    linear-gradient(135deg, #1B2A80, #2B3EA6);
+  --ai-bubble:      #F4F7FC;
 
-  --shadow-sm:   0 2px 8px rgba(43, 183, 236, 0.08);
-  --shadow-md:   0 8px 24px rgba(43, 183, 236, 0.12);
-  --shadow-glow: 0 0 20px rgba(43, 183, 236, 0.18);
+  --shadow-sm:   0 2px 8px rgba(27, 42, 128, 0.05);
+  --shadow-md:   0 8px 24px rgba(27, 42, 128, 0.08);
+  --shadow-glow: 0 0 20px rgba(27, 42, 128, 0.12);
 
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -67,11 +67,11 @@ html, body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #BBE7FA;
+  background: #C4D2E6;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
 }
 
 /* ============================================
@@ -85,7 +85,7 @@ html, body {
   justify-content: center;
   overflow: hidden;
   padding: 16px;
-  background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #EBF8FF 75%);
+  background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #EFF4FA 70%);
 }
 
 @media (max-width: 640px) {
@@ -107,7 +107,7 @@ html, body {
   left: 20%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(43, 183, 236, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(27, 42, 128, 0.06) 0%, transparent 70%);
 }
 
 .bg-glow-2 {
@@ -116,7 +116,7 @@ html, body {
   right: 15%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(255, 184, 0, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(245, 184, 0, 0.08) 0%, transparent 70%);
 }
 
 /* ============================================
@@ -147,7 +147,7 @@ html, body {
 }
 
 /* ============================================
-   헤더 (도와줘룸즈 루미 캐릭터 로고 + AI챗봇 루미)
+   헤더 (청춘스럽 실물 로고 + 청춘스럽 정책안내 AI봇)
    ============================================ */
 .chat-header {
   display: flex;
@@ -177,15 +177,15 @@ html, body {
 }
 
 .header-logo-container {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #FFFFFF;
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(43, 183, 236, 0.12);
-  padding: 3px;
+  box-shadow: 0 2px 8px rgba(27, 42, 128, 0.08);
+  padding: 4px;
   border: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -199,7 +199,7 @@ html, body {
 .header-main-text {
   font-size: 19px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   letter-spacing: -0.5px;
   white-space: nowrap;
   overflow: hidden;
@@ -214,7 +214,7 @@ html, body {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -224,9 +224,9 @@ html, body {
 }
 
 .filter-toggle:hover, .filter-toggle-active {
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   color: #ffffff;
-  border-color: var(--helproomz-blue);
+  border-color: var(--chungchun-blue);
 }
 
 .btn-short-text {
@@ -238,8 +238,8 @@ html, body {
     padding: 10px 14px;
   }
   .header-logo-container {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
   .header-main-text {
     font-size: 15.5px;
@@ -261,7 +261,7 @@ html, body {
    ============================================ */
 .filter-panel {
   padding: 14px 20px;
-  background: #F0F9FE;
+  background: #F4F7FB;
   border-bottom: 1px solid var(--border);
   max-height: 42vh;
   overflow-y: auto;
@@ -283,7 +283,7 @@ html, body {
 .filter-title {
   font-size: 14px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .reset-filter-btn {
@@ -296,7 +296,7 @@ html, body {
 }
 
 .reset-filter-btn:hover {
-  color: var(--helproomz-orange);
+  color: var(--chungchun-orange);
 }
 
 .filter-row {
@@ -304,7 +304,7 @@ html, body {
   flex-direction: column;
   gap: 5px;
   padding-bottom: 6px;
-  border-bottom: 1px dashed #D6EDFA;
+  border-bottom: 1px dashed #E2E9F3;
 }
 
 .filter-row:last-child {
@@ -371,7 +371,7 @@ html, body {
 .filter-chip {
   padding: 4px 10px;
   border-radius: 14px;
-  border: 1px solid #C4E8FA;
+  border: 1px solid #D1DCEB;
   background: #ffffff;
   color: #475569;
   font-size: 11.5px;
@@ -380,14 +380,14 @@ html, body {
 }
 
 .filter-chip:hover {
-  border-color: var(--helproomz-blue);
-  color: var(--helproomz-blue-dark);
+  border-color: var(--chungchun-blue);
+  color: var(--chungchun-blue);
 }
 
 .chip-selected {
-  background: var(--helproomz-blue) !important;
+  background: var(--chungchun-blue) !important;
   color: #ffffff !important;
-  border-color: var(--helproomz-blue) !important;
+  border-color: var(--chungchun-blue) !important;
   font-weight: 700;
 }
 
@@ -461,7 +461,7 @@ html, body {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-pill);
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -470,6 +470,18 @@ html, body {
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
   overflow: hidden;
+}
+
+.avatar-assistant {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border);
+  padding: 2px;
+}
+
+.avatar-ai-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 @media (max-width: 640px) {
@@ -481,19 +493,7 @@ html, body {
 }
 
 .avatar-user {
-  background: var(--helproomz-orange);
-}
-
-.avatar-assistant {
-  background: #ffffff;
-  border: 1px solid var(--border);
-}
-
-.avatar-logo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 2px;
+  background: var(--chungchun-orange);
 }
 
 .message-content-area {
@@ -527,7 +527,7 @@ html, body {
 .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
   margin-top: 10px;
   margin-bottom: 6px;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 .bubble h3 {
   font-size: 16px;
@@ -537,7 +537,7 @@ html, body {
   background: var(--user-bubble);
   color: #ffffff;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 12px rgba(43, 183, 236, 0.2);
+  box-shadow: 0 4px 12px rgba(27, 42, 128, 0.15);
 }
 
 .bubble-assistant {
@@ -548,13 +548,13 @@ html, body {
 }
 
 .chat-link {
-  color: #0284C7;
+  color: #2563EB;
   text-decoration: underline;
   font-weight: 600;
 }
 
 .chat-link:hover {
-  color: #0369A1;
+  color: #1D4ED8;
 }
 
 /* ============================================
@@ -570,7 +570,7 @@ html, body {
 .loading-text {
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .typing-dots {
@@ -583,7 +583,7 @@ html, body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--helproomz-blue);
+  background-color: var(--chungchun-blue);
   animation: bounceDot 1.4s infinite ease-in-out both;
 }
 
@@ -599,7 +599,7 @@ html, body {
   40% {
     transform: scale(1);
     opacity: 1;
-    background-color: var(--helproomz-accent);
+    background-color: var(--chungchun-yellow);
   }
 }
 
@@ -608,7 +608,7 @@ html, body {
   width: 8px;
   height: 15px;
   margin-left: 4px;
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   border-radius: 2px;
   animation: pulseCursor 0.8s infinite alternate;
   vertical-align: middle;
@@ -616,7 +616,7 @@ html, body {
 
 @keyframes pulseCursor {
   0% { opacity: 0.3; transform: scaleY(0.8); }
-  100% { opacity: 1; transform: scaleY(1); background-color: var(--helproomz-orange); }
+  100% { opacity: 1; transform: scaleY(1); background-color: var(--chungchun-orange); }
 }
 
 /* ============================================
@@ -632,7 +632,7 @@ html, body {
 .related-title {
   font-size: 12.5px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .policy-cards-grid {
@@ -654,7 +654,7 @@ html, body {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
-  box-shadow: 0 2px 6px rgba(43, 183, 236, 0.05);
+  box-shadow: 0 2px 6px rgba(27, 42, 128, 0.04);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -662,8 +662,8 @@ html, body {
 }
 
 .policy-card-compact:hover {
-  border-color: var(--helproomz-blue);
-  box-shadow: 0 4px 12px rgba(43, 183, 236, 0.12);
+  border-color: var(--chungchun-blue);
+  box-shadow: 0 4px 12px rgba(27, 42, 128, 0.1);
 }
 
 .card-compact-header {
@@ -674,8 +674,8 @@ html, body {
 }
 
 .compact-badge {
-  background: var(--helproomz-blue-light);
-  color: #0284C7;
+  background: var(--accent-light);
+  color: #B45309;
   font-weight: 700;
   padding: 1px 7px;
   border-radius: var(--radius-pill);
@@ -689,7 +689,7 @@ html, body {
 .compact-title {
   font-size: 13.5px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   line-height: 1.35;
   margin-top: 2px;
 }
@@ -718,14 +718,14 @@ html, body {
 }
 
 .compact-link {
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   font-weight: 800;
   text-decoration: none;
   font-size: 12px;
 }
 
 .compact-link:hover {
-  color: var(--helproomz-blue);
+  color: var(--chungchun-blue-light);
 }
 
 /* ============================================
@@ -733,7 +733,7 @@ html, body {
    ============================================ */
 .suggestions {
   padding: 12px 24px;
-  background: #F4FBFE;
+  background: #F8FAFD;
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -759,14 +759,14 @@ html, body {
 .suggestions-label {
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .toggle-icon {
   font-size: 11.5px;
   color: var(--text-secondary);
   font-weight: 600;
-  background: #E2F4FD;
+  background: #EAF0F8;
   padding: 2px 7px;
   border-radius: var(--radius-pill);
 }
@@ -777,14 +777,14 @@ html, body {
   border-radius: var(--radius-pill);
   padding: 4px 10px;
   font-size: 11.5px;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .refresh-btn:hover {
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   color: #ffffff;
 }
 
@@ -820,8 +820,8 @@ html, body {
 }
 
 .category-tab-btn:hover {
-  border-color: var(--helproomz-blue);
-  color: var(--helproomz-blue-dark);
+  border-color: var(--chungchun-blue);
+  color: var(--chungchun-blue);
 }
 
 .tab-label-short {
@@ -829,11 +829,11 @@ html, body {
 }
 
 .active-cat-tab {
-  background: var(--helproomz-blue) !important;
-  color: #ffffff !important;
-  border-color: var(--helproomz-blue) !important;
+  background: var(--chungchun-blue) !important;
+  color: var(--chungchun-yellow) !important;
+  border-color: var(--chungchun-blue) !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 6px rgba(43, 183, 236, 0.2);
+  box-shadow: 0 2px 6px rgba(27, 42, 128, 0.15);
 }
 
 .suggestions-grid-3 {
@@ -859,9 +859,9 @@ html, body {
 }
 
 .suggestion-chip:hover {
-  border-color: var(--helproomz-blue);
-  background: #EBF8FF;
-  color: var(--helproomz-blue-dark);
+  border-color: var(--chungchun-blue);
+  background: #F0F4FA;
+  color: var(--chungchun-blue);
   font-weight: 700;
 }
 
@@ -970,8 +970,8 @@ html, body {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-pill);
-  background: var(--helproomz-blue);
-  color: #ffffff;
+  background: var(--chungchun-blue);
+  color: var(--chungchun-yellow);
   border: none;
   font-size: 18px;
   font-weight: bold;
