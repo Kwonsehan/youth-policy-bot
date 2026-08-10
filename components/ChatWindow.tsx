@@ -243,7 +243,7 @@ export default function ChatWindow() {
           <div className="header-title-group">
             <div className="header-logo-container">
               <img
-                src="/logo.png?v=3"
+                src="/logo.png?v=999"
                 alt="대전서구 청년공간 청춘스럽 로고"
                 className="header-logo-img"
               />
