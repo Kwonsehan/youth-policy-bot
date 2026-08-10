@@ -1,67 +1,68 @@
 // ============================================
 // lib/rag.ts — 대전서구 청년공간 청춘스럽 AI봇
-// - 대표님 요청: ** 별표 볼드 서식 완전 제거! 깔끔한 1줄씩 엔터 줄바꿈 양식 고정
+// - 청년공간/정책 이름 타이틀(🏛️ 1. 청춘나들목 / 📋 청년일경험인턴) 100% 표기
+// - 각 항목 간 줄바꿈(엔터) 강제 적용
 // ============================================
 import { Policy } from './supabase';
 
-// 대전 10개 공식 청년공간 팝업 데이터
+// 대전 10개 공식 청년공간 팝업 데이터 (실물 명칭 매핑)
 const SPACE_POLICIES: Policy[] = [
   {
-    id: 'space-1', title: '청춘나들목 (대전역 지하)', category: '청년공간', region: '대전광역시 동구',
+    id: 'space-1', title: '청춘나들목', category: '청년공간', region: '대전광역시 동구',
     age_min: 18, age_max: 39,
     content: '동구 중앙로 218 지하 3층 (대전역 지하). 대전역 근처 공간 무료 대여, 스터디룸, 소모임 및 휴식 공간을 제공합니다.',
     apply_url: 'https://www.daejeonyouthportal.kr', deadline: '상시', host: '대전광역시', benefit: '공간 무료 대여, 스터디룸, 소모임 공간'
   },
   {
-    id: 'space-2', title: '청춘너나들이 (둔산동 샤크존)', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-2', title: '청춘너나들이', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
     content: '서구 둔산중로 19 2층 샤크존. 둔산동 회의실 및 스터디룸 무료 대여, 청년 커뮤니티 모임 장소를 제공합니다.',
     apply_url: 'https://www.daejeonyouthportal.kr', deadline: '상시', host: '대전광역시', benefit: '회의실 무료 대여, 스터디, 모임'
   },
   {
-    id: 'space-3', title: '청춘두두두 (갈마동)', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-3', title: '청춘두두두', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
     content: '서구 갈마중로30번길 67 1층/지하1층. 갈마동 행사공간, 공유주방, 스터디룸, 소모임 공간을 무료로 대여합니다.',
     apply_url: 'https://www.daejeonyouthportal.kr', deadline: '상시', host: '대전광역시', benefit: '행사공간, 공유주방, 스터디룸 무료 대여'
   },
   {
-    id: 'space-4', title: '청춘스럽 (월평역 대전일보 1층)', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-4', title: '청춘스럽', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
     content: '서구 계룡로 314 1층 대전일보. 월평역 근처 취업/진로 프로그램, 청년정책 상설 상담, 회의실 및 스터디룸 무료 대여.',
     apply_url: 'https://seoguyouth.kr/', deadline: '상시', host: '대전광역시 서구', benefit: '취업/진로 프로그램, 정책상담, 스터디룸 대여'
   },
   {
-    id: 'space-5', title: '청춘정거장 (둔산동 프뢰벨 7층)', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-5', title: '청춘정거장', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
-    content: '서구 대덕대로 198 7층. 둔산동 중심가 회의실, 스터디룸, 청년 모임 공간 무료 대여.',
+    content: '서구 대덕대로 198 7층 프뢰벨. 둔산동 중심가 회의실, 스터디룸, 청년 모임 공간 무료 대여.',
     apply_url: 'https://seoguyouth.kr/', deadline: '상시', host: '대전광역시 서구', benefit: '회의실, 스터디룸 무료 대여'
   },
   {
-    id: 'space-6', title: '청춘포털 (도마동 도솔마을 2층)', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-6', title: '청춘포털', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
-    content: '서구 사마7길 33 2층. 도마동 회의실, 미디어실, 스터디룸 및 커뮤니티 공간 무료 대여.',
+    content: '서구 사마7길 33 2층 도솔마을. 도마동 회의실, 미디어실, 스터디룸 및 커뮤니티 공간 무료 대여.',
     apply_url: 'https://seoguyouth.kr/', deadline: '상시', host: '대전광역시 서구', benefit: '회의실, 미디어실, 스터디룸 대여'
   },
   {
-    id: 'space-7', title: '동구동락 (우송대 근처)', category: '청년공간', region: '대전광역시 동구',
+    id: 'space-7', title: '동구동락', category: '청년공간', region: '대전광역시 동구',
     age_min: 18, age_max: 39,
     content: '동구 백룡로 20 3층 새마을회관. 우송대 근처 스터디, 청년 모임 및 편안한 휴식 공간 제공.',
     apply_url: 'https://www.dongguyouth.or.kr/', deadline: '상시', host: '대전광역시 동구', benefit: '스터디룸, 모임, 휴식 공간 무료 제공'
   },
   {
-    id: 'space-8', title: '청년모아 (선화동)', category: '청년공간', region: '대전광역시 중구',
+    id: 'space-8', title: '청년모아', category: '청년공간', region: '대전광역시 중구',
     age_min: 18, age_max: 39,
     content: '중구 목중로70번길 15 2층. 선화동 강의장, 공유주방, 공유오피스 공간 무료 대여 및 청년 강의.',
     apply_url: 'http://www.xn--660b31p2yizuh.com/', deadline: '상시', host: '대전광역시 중구', benefit: '강의장, 공유주방, 공유오피스 무료 대여'
   },
   {
-    id: 'space-9', title: '청년벙커 (대덕구청 지하1층)', category: '청년공간', region: '대전광역시 대덕구',
+    id: 'space-9', title: '청년벙커', category: '청년공간', region: '대전광역시 대덕구',
     age_min: 18, age_max: 39,
-    content: '대덕구 대전로1033번길 20 지하1층. 대덕구 라운지, 회의실, 밴드 연습실, 공유주방, 미디어 스튜디오 무료 대여.',
+    content: '대덕구 대전로1033번길 20 지하1층 대덕구청. 대덕구 라운지, 회의실, 밴드 연습실, 공유주방, 미디어 스튜디오 무료 대여.',
     apply_url: 'https://www.ddyouth.net/', deadline: '상시', host: '대전광역시 대덕구', benefit: '연습실, 스튜디오, 공유주방 무료 대여'
   },
   {
-    id: 'space-10', title: '유성구청년지원센터 (궁동)', category: '청년공간', region: '대전광역시 유성구',
+    id: 'space-10', title: '유성구청년지원센터', category: '청년공간', region: '대전광역시 유성구',
     age_min: 18, age_max: 39,
     content: '유성구 농대로15번길 20. 궁동 회의실, 세미나실, 스터디룸 무료 대여 및 청년지원 사업 안내.',
     apply_url: 'https://www.yuseong.go.kr/ysyouth/index.do', deadline: '상시', host: '대전광역시 유성구', benefit: '회의실, 세미나실, 스터디룸 무료 대여'
@@ -269,7 +270,7 @@ export async function searchPolicies(
 export function buildSystemPrompt(policies: Policy[]): string {
   const policyContext = policies.length > 0
     ? policies.map((p, i) =>
-        `[정보 ${i + 1}] ${p.title}
+        `[정보 ${i + 1}] 명칭: ${p.title}
 분야: ${p.category} | 지역: ${p.region} | 대상: ${p.age_min}~${p.age_max}세
 혜택: ${p.benefit || '상세 내용 참고'}
 내용: ${p.content}
@@ -279,15 +280,16 @@ export function buildSystemPrompt(policies: Policy[]): string {
 
   return `당신은 대전서구 청년공간 청춘스럽의 청년정책 전문 AI 안내봇입니다.
 
-🚨 [엄격한 서식 및 답변 규칙]
-1. 🚨 절대로 별표(**) 서식을 사용하지 마세요! 항목 이름 뒤에 ** 별표를 1개도 붙이지 마세요!
-2. 🚨 각 항목(📌 한줄요약:, 🎯 지원대상:, 💰 지원혜택:, 📋 신청방법:, 🔗 신청링크:)은 반드시 한 줄에 하나씩 줄바꿈(엔터)하여 콤팩트하게 출력하세요! 한 줄로 쭉 이어붙이지 마세요!
-3. 절대로 "안녕하세요!", "문의하신 ~에 대한 안내입니다." 같은 서론 인삿말을 1글자도 출력하지 마세요! 질문을 받으면 즉시 📌 한줄요약: 부터 바로 출력을 개시하세요.
-4. 링크는 반드시 [신청 바로가기](URL) 마크다운으로 포함하세요.
+🚨 [엄격한 줄바꿈 서식 및 타이틀 명시 규칙]
+1. 🚨 절대로 별표(**) 서식을 사용하지 마세요!
+2. 🚨 각 항목(📌, 📍, 🏢, 🎯, 💰, 📋, 🔗) 및 정책/공간 제목은 반드시 1줄에 1개씩 엔터(줄바꿈)를 넣어 아래 예시처럼 출력하세요! 절대 한 줄로 다 이어붙이지 마세요!
+3. 🚨 대전 10개 청년공간이나 정책을 안내할 때는 **반드시 맨 위에 공간/정책 이름(제목)**을 명시하세요!
+4. 🚨 서론 인삿말("안녕하세요!")은 1글자도 쓰지 말고 질문 즉시 제목부터 출력을 개시하세요.
 
 ---
 
 [양식 1: 일반 청년정책 문의 시 무조건 이 양식으로 줄바꿈하여 답변]
+📋 [정책 이름 명시]
 📌 한줄요약: [핵심 내용 1줄 요약]
 🎯 지원대상: [나이 / 소득 / 조건 단답 핵심 키워드]
 💰 지원혜택: [지원금 / 할인 / 혜택 금액 단답 표기]
@@ -297,10 +299,13 @@ export function buildSystemPrompt(policies: Policy[]): string {
 ---
 
 [양식 2: 대전 청년공간 문의 시 무조건 이 양식으로 줄바꿈하여 답변]
+🏛️ [1. 공간이름]
 📌 공간특징: [해당 청년공간의 주요 특징 1줄 요약]
 📍 위치/주소: [도로명 주소 및 인근 지하철역/장소]
 🏢 무료대여: [무료 이용 가능한 회의실 / 스터디룸 / 공간]
 🔗 예약/안내: [예약 바로가기](URL)
+
+(여러 개 청년공간을 전체 리스트업할 경우 위 [양식 2]를 1번부터 10번까지 줄바꿈하여 순서대로 목록 작성)
 
 ---
 
