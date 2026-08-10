@@ -1,7 +1,7 @@
 'use client';
 // ============================================
 // components/ChatWindow.tsx
-// 기존 메인 챗봇: 대전서구 청년공간 청춘스럽 정책안내 AI봇
+// 청춘스럽 정책안내 AI봇 전용 메인 채팅창 컴포넌트
 // ============================================
 
 import { useState, useRef, useEffect, useCallback } from 'react';
