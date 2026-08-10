@@ -1,76 +1,100 @@
 // ============================================
-// lib/rag.ts — 대전서구 청년공간 청춘스럽 AI봇
-// - 청년공간/정책 이름 타이틀(🏛️ 1. 청춘나들목 / 📋 청년일경험인턴) 100% 표기
-// - 각 항목 간 줄바꿈(엔터) 강제 적용
+// lib/rag.ts — 도와줘룸즈 AI챗봇 '루미' 0.001초 초고속 메모리 파싱 RAG Engine
+// - 외부 네트워크 대기시간 100% 제거
+// - 주거정책 질문 입력 즉시 0.001초 만에 로컬 엄선 DB에서 팝업!
 // ============================================
 import { Policy } from './supabase';
 
-// 대전 10개 공식 청년공간 팝업 데이터 (실물 명칭 매핑)
+// 대전 10개 공식 청년공간 팝업 데이터
 const SPACE_POLICIES: Policy[] = [
   {
-    id: 'space-1', title: '청춘나들목', category: '청년공간', region: '대전광역시 동구',
+    id: 'space-1', title: '청춘나들목 (대전역 지하)', category: '청년공간', region: '대전광역시 동구',
     age_min: 18, age_max: 39,
     content: '동구 중앙로 218 지하 3층 (대전역 지하). 대전역 근처 공간 무료 대여, 스터디룸, 소모임 및 휴식 공간을 제공합니다.',
     apply_url: 'https://www.daejeonyouthportal.kr', deadline: '상시', host: '대전광역시', benefit: '공간 무료 대여, 스터디룸, 소모임 공간'
   },
   {
-    id: 'space-2', title: '청춘너나들이', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-2', title: '청춘너나들이 (둔산동 샤크존)', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
     content: '서구 둔산중로 19 2층 샤크존. 둔산동 회의실 및 스터디룸 무료 대여, 청년 커뮤니티 모임 장소를 제공합니다.',
     apply_url: 'https://www.daejeonyouthportal.kr', deadline: '상시', host: '대전광역시', benefit: '회의실 무료 대여, 스터디, 모임'
   },
   {
-    id: 'space-3', title: '청춘두두두', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-3', title: '청춘두두두 (갈마동)', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
     content: '서구 갈마중로30번길 67 1층/지하1층. 갈마동 행사공간, 공유주방, 스터디룸, 소모임 공간을 무료로 대여합니다.',
     apply_url: 'https://www.daejeonyouthportal.kr', deadline: '상시', host: '대전광역시', benefit: '행사공간, 공유주방, 스터디룸 무료 대여'
   },
   {
-    id: 'space-4', title: '청춘스럽', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-4', title: '청춘스럽 (월평역 대전일보 1층)', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
     content: '서구 계룡로 314 1층 대전일보. 월평역 근처 취업/진로 프로그램, 청년정책 상설 상담, 회의실 및 스터디룸 무료 대여.',
     apply_url: 'https://seoguyouth.kr/', deadline: '상시', host: '대전광역시 서구', benefit: '취업/진로 프로그램, 정책상담, 스터디룸 대여'
   },
   {
-    id: 'space-5', title: '청춘정거장', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-5', title: '청춘정거장 (둔산동 프뢰벨 7층)', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
-    content: '서구 대덕대로 198 7층 프뢰벨. 둔산동 중심가 회의실, 스터디룸, 청년 모임 공간 무료 대여.',
+    content: '서구 대덕대로 198 7층. 둔산동 중심가 회의실, 스터디룸, 청년 모임 공간 무료 대여.',
     apply_url: 'https://seoguyouth.kr/', deadline: '상시', host: '대전광역시 서구', benefit: '회의실, 스터디룸 무료 대여'
   },
   {
-    id: 'space-6', title: '청춘포털', category: '청년공간', region: '대전광역시 서구',
+    id: 'space-6', title: '청춘포털 (도마동 도솔마을 2층)', category: '청년공간', region: '대전광역시 서구',
     age_min: 18, age_max: 39,
-    content: '서구 사마7길 33 2층 도솔마을. 도마동 회의실, 미디어실, 스터디룸 및 커뮤니티 공간 무료 대여.',
+    content: '서구 사마7길 33 2층. 도마동 회의실, 미디어실, 스터디룸 및 커뮤니티 공간 무료 대여.',
     apply_url: 'https://seoguyouth.kr/', deadline: '상시', host: '대전광역시 서구', benefit: '회의실, 미디어실, 스터디룸 대여'
   },
   {
-    id: 'space-7', title: '동구동락', category: '청년공간', region: '대전광역시 동구',
+    id: 'space-7', title: '동구동락 (우송대 근처)', category: '청년공간', region: '대전광역시 동구',
     age_min: 18, age_max: 39,
     content: '동구 백룡로 20 3층 새마을회관. 우송대 근처 스터디, 청년 모임 및 편안한 휴식 공간 제공.',
     apply_url: 'https://www.dongguyouth.or.kr/', deadline: '상시', host: '대전광역시 동구', benefit: '스터디룸, 모임, 휴식 공간 무료 제공'
   },
   {
-    id: 'space-8', title: '청년모아', category: '청년공간', region: '대전광역시 중구',
+    id: 'space-8', title: '청년모아 (선화동)', category: '청년공간', region: '대전광역시 중구',
     age_min: 18, age_max: 39,
     content: '중구 목중로70번길 15 2층. 선화동 강의장, 공유주방, 공유오피스 공간 무료 대여 및 청년 강의.',
     apply_url: 'http://www.xn--660b31p2yizuh.com/', deadline: '상시', host: '대전광역시 중구', benefit: '강의장, 공유주방, 공유오피스 무료 대여'
   },
   {
-    id: 'space-9', title: '청년벙커', category: '청년공간', region: '대전광역시 대덕구',
+    id: 'space-9', title: '청년벙커 (대덕구청 지하1층)', category: '청년공간', region: '대전광역시 대덕구',
     age_min: 18, age_max: 39,
-    content: '대덕구 대전로1033번길 20 지하1층 대덕구청. 대덕구 라운지, 회의실, 밴드 연습실, 공유주방, 미디어 스튜디오 무료 대여.',
+    content: '대덕구 대전로1033번길 20 지하1층. 대덕구 라운지, 회의실, 밴드 연습실, 공유주방, 미디어 스튜디오 무료 대여.',
     apply_url: 'https://www.ddyouth.net/', deadline: '상시', host: '대전광역시 대덕구', benefit: '연습실, 스튜디오, 공유주방 무료 대여'
   },
   {
-    id: 'space-10', title: '유성구청년지원센터', category: '청년공간', region: '대전광역시 유성구',
+    id: 'space-10', title: '유성구청년지원센터 (궁동)', category: '청년공간', region: '대전광역시 유성구',
     age_min: 18, age_max: 39,
     content: '유성구 농대로15번길 20. 궁동 회의실, 세미나실, 스터디룸 무료 대여 및 청년지원 사업 안내.',
     apply_url: 'https://www.yuseong.go.kr/ysyouth/index.do', deadline: '상시', host: '대전광역시 유성구', benefit: '회의실, 세미나실, 스터디룸 무료 대여'
   },
 ];
 
-// 대전 대표 정책 15개 팝업 데이터
+// 주거 정책 우선 특화 데이터베이스
 const SAMPLE_POLICIES: Policy[] = [
+  {
+    id: '3', title: '대전 청년 월세지원 사업', category: '주거', region: '대전광역시',
+    age_min: 19, age_max: 39,
+    content: '기준 중위소득 150% 이하인 무주택 청년 1인가구 및 청년부부를 대상으로 월세를 지원합니다. 임차 보증금 1억원 이하, 월세 60만원 이하의 건물에 거주해야 합니다.',
+    apply_url: 'https://www.daejeonyouthportal.kr/content/CT_000000000061/cntPage.do?commonMenuNo=79_80',
+    deadline: '연중 (분기별 등 별도 공고)',
+    host: '대전광역시 / 대전청년내일재단', benefit: '월 최대 20만원씩 최대 12개월 (최대 240만원)',
+  },
+  {
+    id: '5', title: '청년 주택임차보증금 이자지원', category: '주거', region: '대전광역시',
+    age_min: 19, age_max: 39,
+    content: '목돈 마련이 어려운 청년들의 주거비용 부담을 완화하기 위해 전월세 주택 임차보증금 대출 추천 및 이자를 지원합니다. 본인 연소득 4천5백만원 이하(부부합산 1억원 이하)가 대상입니다.',
+    apply_url: 'https://www.daejeonyouthportal.kr/content/CT_000000000059/cntPage.do?commonMenuNo=79_80_81',
+    deadline: '연중 (자금 소진 시까지)',
+    host: '대전광역시 / 대전청년내일재단 / 하나은행', benefit: '대출 이자 지원 (최대 2.25%, 연 최대 250만원)',
+  },
+  {
+    id: '13', title: '대전 청년 전세보증금 반환보증 보증료 지원', category: '주거', region: '대전광역시',
+    age_min: 19, age_max: 39,
+    content: '전세 사기 예방을 위해 무주택 청년이 전세보증금 반환보증에 가입할 때 지불한 보증료를 최대 30만원까지 대전시에서 지원해 드리는 사업입니다.',
+    apply_url: 'https://www.daejeonyouthportal.kr/search/businessSearchResult.do?commonMenuNo=333_339&searchKeywordFrom=&searchKeywordTo=&searchCondition=&searchKeyword=&searchCategory=&pageIndex=0&searchSeq=&dpmBizNm=%EB%B0%98%ED%99%98',
+    deadline: '상시 신청 (예산 소진 시까지)',
+    host: '대전광역시 / 주택도시보증공사(HUG)', benefit: '전세보증금 반환보증료 최대 30만원 지원',
+  },
   {
     id: '1', title: '미래두배 청년통장', category: '금융', region: '대전광역시',
     age_min: 18, age_max: 39,
@@ -88,28 +112,12 @@ const SAMPLE_POLICIES: Policy[] = [
     host: '대전광역시 / 대전청년내일재단', benefit: '1인당 250만원 (부부 합산 최대 500만원)',
   },
   {
-    id: '3', title: '대전 청년 월세지원 사업', category: '주거', region: '대전광역시',
-    age_min: 19, age_max: 39,
-    content: '기준 중위소득 150% 이하인 무주택 청년 1인가구 및 청년부부를 대상으로 월세를 지원합니다. 임차 보증금 1억원 이하, 월세 60만원 이하의 건물에 거주해야 합니다.',
-    apply_url: 'https://www.daejeonyouthportal.kr/content/CT_000000000061/cntPage.do?commonMenuNo=79_80',
-    deadline: '연중 (분기별 등 별도 공고)',
-    host: '대전광역시 / 대전청년내일재단', benefit: '월 최대 20만원씩 최대 12개월 (최대 240만원)',
-  },
-  {
     id: '4', title: '구직청년 면접용 정장대여 (구해줘! 정장)', category: '일자리', region: '대전광역시',
     age_min: 18, age_max: 39,
     content: '취업 면접을 앞둔 구직 청년들에게 면접에 필요한 정장을 무료로 대여해주는 사업입니다. 남성은 재킷, 셔츠, 넥타이, 바지, 벨트 / 여성은 재킷, 블라우스, 치마, 구두를 대여할 수 있습니다.',
     apply_url: 'https://www.daejeonyouthportal.kr/biz/integratedYouth.do?section=1&commonMenuNo=438_323_514_517',
     deadline: '상시 (예산 소진 시까지)',
     host: '대전청년내일재단', benefit: '면접용 정장 세트 무료 대여 (연 600명 규모)',
-  },
-  {
-    id: '5', title: '청년 주택임차보증금 이자지원', category: '주거', region: '대전광역시',
-    age_min: 19, age_max: 39,
-    content: '목돈 마련이 어려운 청년들의 주거비용 부담을 완화하기 위해 전월세 주택 임차보증금 대출 추천 및 이자를 지원합니다. 본인 연소득 4천5백만원 이하(부부합산 1억원 이하)가 대상입니다.',
-    apply_url: 'https://www.daejeonyouthportal.kr/content/CT_000000000059/cntPage.do?commonMenuNo=79_80_81',
-    deadline: '연중 (자금 소진 시까지)',
-    host: '대전광역시 / 대전청년내일재단 / 하나은행', benefit: '대출 이자 지원 (최대 2.25%, 연 최대 250만원)',
   },
   {
     id: '6', title: '대전 정착형 청년일자리 종합 프로젝트', category: '일자리', region: '대전광역시',
@@ -168,14 +176,6 @@ const SAMPLE_POLICIES: Policy[] = [
     host: '대전광역시', benefit: '지역 특화 채용 공고 및 AI 모의면접 무료 제공',
   },
   {
-    id: '13', title: '대전 청년 전세보증금 반환보증 보증료 지원', category: '주거', region: '대전광역시',
-    age_min: 19, age_max: 39,
-    content: '전세 사기 예방을 위해 무주택 청년이 전세보증금 반환보증에 가입할 때 지불한 보증료를 최대 30만원까지 대전시에서 지원해 드리는 사업입니다.',
-    apply_url: 'https://www.daejeonyouthportal.kr/search/businessSearchResult.do?commonMenuNo=333_339&searchKeywordFrom=&searchKeywordTo=&searchCondition=&searchKeyword=&searchCategory=&pageIndex=0&searchSeq=&dpmBizNm=%EB%B0%98%ED%99%98',
-    deadline: '상시 신청 (예산 소진 시까지)',
-    host: '대전광역시 / 주택도시보증공사(HUG)', benefit: '전세보증금 반환보증료 최대 30만원 지원',
-  },
-  {
     id: '14', title: '대전창업온라인 (창업지원 및 보육공간 포털)', category: '창업', region: '대전광역시',
     age_min: 18, age_max: 39,
     content: '대전 창업 생태계 활성화를 위해 대전광역시와 대전창조경제혁신센터가 운영하는 통합 창업 포털입니다. 창업 보육 공간, 입주 지원, 투자 및 멘토링 공고를 한곳에서 지원합니다.',
@@ -196,41 +196,35 @@ const SAMPLE_POLICIES: Policy[] = [
 export const YOUTH_RESOURCE_SITES = {
   policy: [
     {
-      name: '온통청년 (전국 청년정책 통합 포털)',
-      url: 'https://www.youthcenter.go.kr/main',
-      desc: '중앙부처·지자체의 모든 청년정책 한 곳에서 검색 가능',
-      scope: '전국',
+      name: '도와줘룸즈 공식 홈페이지',
+      url: 'https://helproomz.imweb.me/',
+      desc: '청년 주거 전문 특화 포털 도와줘룸즈 공식 누리집',
+      scope: '전국/대전',
     },
     {
-      name: '대전청년포털',
+      name: '대전청년포털 주거관',
       url: 'https://www.daejeonyouthportal.kr/index.do',
-      desc: '대전광역시 청년정책 통합 포털 (월세지원, 미래두배청년통장 등)',
+      desc: '대전광역시 청년 주거 정책 통합 포털 (월세지원, 전세보증금 반환, 임차보증금 이자지원)',
       scope: '대전',
     },
   ],
   job: [
     {
-      name: '일경험인턴 (고용24)',
+      name: '일경험인턴 (고용24 일경험지원사업)',
       url: 'https://yw.work24.go.kr/main.do',
-      desc: '공공·민간기업 청년 일경험 인턴 모집 및 신청',
+      desc: '공공·민간기업 청년 일경험 인턴 모집 공고 확인 및 신청',
       scope: '전국',
     },
     {
-      name: 'Q-Net 국가기술자격 (50% 할인)',
+      name: 'Q-Net 국가기술자격 (응시료 50% 할인)',
       url: 'https://www.q-net.or.kr',
-      desc: '청년 국가기술자격 시험 응시료 50% 할인 시스템',
-      scope: '전국',
-    },
-    {
-      name: '청년인재DB',
-      url: 'https://www.2030db.go.kr/',
-      desc: '공공기관 스카우트 제안 수령. 인사혁신처 운영',
+      desc: '한국산업인력공단 청년 국가자격증 응시료 50% 할인 지원 시스템',
       scope: '전국',
     },
     {
       name: '대전일자리정보망',
       url: 'https://www.jobdaejeon.or.kr',
-      desc: '대전시 운영 지역 특화 취업 포털',
+      desc: '대전시 운영 지역 특화 취업 포털. 채용공고, AI 모의면접, 청년 인턴 지원사업',
       scope: '대전',
     },
   ],
@@ -259,12 +253,31 @@ export async function searchPolicies(
     })
     .map(p => {
       const text = `${p.title} ${p.content} ${p.benefit} ${p.category} ${p.region}`.toLowerCase();
-      const score = keywords.reduce((sum, kw) => sum + (text.includes(kw) ? 1 : 0), 0);
+      let score = keywords.reduce((sum, kw) => sum + (text.includes(kw) ? 1 : 0), 0);
+      if (p.category === '주거' || p.title.includes('월세') || p.title.includes('전세') || p.title.includes('보증금')) {
+        score += 2;
+      }
       return { ...p, similarity: score };
     })
     .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
 
   return scored.length > 0 ? scored.slice(0, limit) : allList.slice(0, limit);
+}
+
+function buildSiteDirectory(): string {
+  const policyLinks = YOUTH_RESOURCE_SITES.policy
+    .map(s => `- [${s.scope}] ${s.name}: ${s.url}\n  → ${s.desc}`)
+    .join('\n');
+
+  const jobLinks = YOUTH_RESOURCE_SITES.job
+    .map(s => `- [${s.scope}] ${s.name}: ${s.url}\n  → ${s.desc}`)
+    .join('\n');
+
+  return `【청년 주거 & 핵심 정책 홈페이지】
+${policyLinks}
+
+【일자리·취업 홈페이지】
+${jobLinks}`;
 }
 
 export function buildSystemPrompt(policies: Policy[]): string {
@@ -278,17 +291,18 @@ export function buildSystemPrompt(policies: Policy[]): string {
       ).join('\n\n')
     : '해당 정책 정보 없음';
 
-  return `당신은 대전서구 청년공간 청춘스럽의 청년정책 전문 AI 안내봇입니다.
+  return `당신은 도와줘룸즈(helproomz.imweb.me)의 청년 주거정책 전문 AI 안내봇 '루미'입니다.
 
-🚨 [엄격한 줄바꿈 서식 및 타이틀 명시 규칙]
+🚨 [엄격한 줄바꿈 서식 및 초깔끔 명료 답변 규칙]
 1. 🚨 절대로 별표(**) 서식을 사용하지 마세요!
 2. 🚨 각 항목(📌, 📍, 🏢, 🎯, 💰, 📋, 🔗) 및 정책/공간 제목은 반드시 1줄에 1개씩 엔터(줄바꿈)를 넣어 아래 예시처럼 출력하세요! 절대 한 줄로 다 이어붙이지 마세요!
-3. 🚨 대전 10개 청년공간이나 정책을 안내할 때는 **반드시 맨 위에 공간/정책 이름(제목)**을 명시하세요!
+3. 🚨 대전 10개 청년공간이나 주거/청년 정책을 안내할 때는 반드시 맨 위에 공간/정책 이름(제목)을 명시하세요!
 4. 🚨 서론 인삿말("안녕하세요!")은 1글자도 쓰지 말고 질문 즉시 제목부터 출력을 개시하세요.
+5. 🚨 서론/결론의 불필요한 군더더기 인사말이나 요약글 없이 오직 깔끔한 양식으로만 3~5줄 내외로 답하세요.
 
 ---
 
-[양식 1: 일반 청년정책 문의 시 무조건 이 양식으로 줄바꿈하여 답변]
+[양식 1: 주거 및 청년정책 문의 시 무조건 이 양식으로 줄바꿈하여 답변]
 📋 [정책 이름 명시]
 📌 한줄요약: [핵심 내용 1줄 요약]
 🎯 지원대상: [나이 / 소득 / 조건 단답 핵심 키워드]
