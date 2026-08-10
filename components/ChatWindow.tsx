@@ -2,7 +2,7 @@
 // ============================================
 // components/ChatWindow.tsx
 // 청춘스럽 정책안내 AI봇 전용 메인 채팅창 컴포넌트
-// - 최상단 제목 옆 로고 & AI 프로필 로고 100% 선명 동기화
+// - 질문 클릭/전송 시 '이런 것들을 물어볼 수 있어요' 패널 자동 접힘 적용!
 // ============================================
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -119,6 +119,9 @@ export default function ChatWindow() {
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
+
+    // 대표님 요청: 질문 클릭 및 전송 시 '이런 것들을 물어볼 수 있어요' 탭 자동 접힘!
+    setIsSuggestionsOpen(false);
 
     const userMessage: Message = {
       id: uuidv4(),
@@ -237,7 +240,7 @@ export default function ChatWindow() {
 
   return (
     <div className="chat-container">
-      {/* ========== 헤더 (상단 제목 옆 로고 100% 선명 보장) ========== */}
+      {/* ========== 헤더 ========== */}
       <header className="chat-header">
         <div className="header-left">
           <div className="header-title-group">
@@ -281,7 +284,7 @@ export default function ChatWindow() {
         <div ref={bottomRef} />
       </main>
 
-      {/* ========== 분야별 2단계 추천 질문 탭 ========== */}
+      {/* ========== 분야별 2단계 추천 질문 탭 (질문 클릭 시 자동 접힘) ========== */}
       <div className="suggestions">
         <div className="suggestions-header">
           <button
