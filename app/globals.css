@@ -204,42 +204,42 @@ html, body {
   white-space: nowrap;
 }
 
-/* 눈에 띄는 '도와줘룸즈 신청하기' 깜빡깜빡 펄스 CTA 버튼 */
+/* 눈에 띄는 '도와줘룸즈 신청하기' 파란색 펄스 CTA 버튼 */
 .apply-cta-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 6px 13px;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+  background: linear-gradient(135deg, #0088FF 0%, #2BD2FF 100%);
   color: #ffffff !important;
   font-size: 13px;
   font-weight: 800;
   border-radius: 20px;
   text-decoration: none !important;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 136, 255, 0.35);
   transition: all 0.2s ease;
-  animation: pulseGlow 1.8s infinite ease-in-out;
+  animation: pulseGlowBlue 1.8s infinite ease-in-out;
   flex-shrink: 0;
   white-space: nowrap;
 }
 
 .apply-cta-btn:hover {
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.55);
-  background: linear-gradient(135deg, #FF5514 0%, #FF7A38 100%);
+  box-shadow: 0 6px 16px rgba(0, 136, 255, 0.55);
+  background: linear-gradient(135deg, #0077EE 0%, #00B8FF 100%);
 }
 
-@keyframes pulseGlow {
+@keyframes pulseGlowBlue {
   0% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.65), 0 4px 12px rgba(255, 107, 53, 0.35);
+    box-shadow: 0 0 0 0 rgba(0, 136, 255, 0.65), 0 4px 12px rgba(0, 136, 255, 0.35);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 7px rgba(255, 107, 53, 0), 0 4px 16px rgba(255, 107, 53, 0.5);
+    box-shadow: 0 0 0 7px rgba(0, 136, 255, 0), 0 4px 16px rgba(0, 136, 255, 0.5);
     transform: scale(1.03);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0), 0 4px 12px rgba(255, 107, 53, 0.35);
+    box-shadow: 0 0 0 0 rgba(0, 136, 255, 0), 0 4px 12px rgba(0, 136, 255, 0.35);
     transform: scale(1);
   }
 }
