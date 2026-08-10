@@ -5,15 +5,31 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '대전서구 청년공간 청춘스럽 AI봇 | 청년을 위한 맞춤 정책 안내',
+  // 메타데이터 및 OpenGraph 이미지의 기본 URL 설정
+  metadataBase: new URL('https://helproomz-bot.vercel.app'),
+  title: "도와줘룸즈 AI챗봇 '루미' | 청년을 위한 맞춤 주거·정책 안내",
   description:
-    '대전서구 청년공간 청춘스럽 AI 정책 안내 서비스. 일자리, 주거, 교육, 창업, 복지, 금융 정책을 쉽고 빠르게 확인하세요.',
-  keywords: ['대전서구', '청춘스럽', '청년정책', 'AI챗봇', '취업', '일자리', '청년지원'],
+    "도와줘룸즈 AI챗봇 '루미' 서비스. 청년을 위한 맞춤 주거, 일자리, 금융, 복지 정책을 쉽고 빠르게 확인하세요.",
+  keywords: ['도와줘룸즈', '루미', '청년주거', '청년정책', 'AI챗봇', '주거지원', '청년지원'],
   openGraph: {
-    title: '대전서구 청년공간 청춘스럽 AI봇',
-    description: '대전서구 청년공간 청춘스럽 맞춤 정책 안내 서비스',
+    title: "도와줘룸즈 AI챗봇 '루미'",
+    description: '청년들의 주거·정책 고민을 해결하는 도와줘룸즈 맞춤 AI 안내봇',
     locale: 'ko_KR',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 1200,
+        alt: "도와줘룸즈 AI챗봇 '루미' 대표 이미지",
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "도와줘룸즈 AI챗봇 '루미'",
+    description: '청년들의 주거·정책 고민을 해결하는 도와줘룸즈 맞춤 AI 안내봇',
+    images: ['/og-image.jpg'],
   },
 };
 
@@ -37,3 +53,4 @@ export default function RootLayout({
     </html>
   );
 }
+
