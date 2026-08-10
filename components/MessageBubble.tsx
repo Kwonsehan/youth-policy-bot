@@ -73,7 +73,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         {isUser ? (
           '👤'
         ) : (
-          <img src="/logo.png" alt="청춘스럽 로고" className="avatar-ai-img" />
+          <img src="/logo.png?v=3" alt="청춘스럽 로고" className="avatar-ai-img" />
         )}
       </div>
 

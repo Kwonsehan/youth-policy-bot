@@ -2,6 +2,7 @@
 // ============================================
 // components/ChatWindow.tsx
 // 청춘스럽 정책안내 AI봇 전용 메인 채팅창 컴포넌트
+// - 최상단 제목 옆 로고 & AI 프로필 로고 100% 선명 동기화
 // ============================================
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -236,14 +237,14 @@ export default function ChatWindow() {
 
   return (
     <div className="chat-container">
-      {/* ========== 헤더 ========== */}
+      {/* ========== 헤더 (상단 제목 옆 로고 100% 선명 보장) ========== */}
       <header className="chat-header">
         <div className="header-left">
           <div className="header-title-group">
             <div className="header-logo-container">
               <img
-                src="/logo.png"
-                alt="청춘스럽 로고"
+                src="/logo.png?v=3"
+                alt="대전서구 청년공간 청춘스럽 로고"
                 className="header-logo-img"
               />
             </div>
