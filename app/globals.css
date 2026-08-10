@@ -469,6 +469,19 @@ html, body {
   font-size: 18px;
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-assistant {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border);
+  padding: 2px;
+}
+
+.avatar-ai-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 @media (max-width: 640px) {

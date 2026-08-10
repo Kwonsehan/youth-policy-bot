@@ -2,8 +2,7 @@
 // ============================================
 // components/MessageBubble.tsx
 // 개별 대화 말풍선 컴포넌트
-// - 맞춤 설정 안함 ➔ '💡 추천 정책 TOP 2'
-// - 맞춤 설정 함 ➔ '💡 맞춤 추천 정책 TOP 2'
+// - AI 프로필 아바타에 청춘스럽 로고 적용
 // ============================================
 
 import PolicyCard from './PolicyCard';
@@ -69,9 +68,13 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div className={`message-wrapper ${isUser ? 'message-user' : 'message-assistant'}`}>
-      {/* 아바타 아이콘 */}
+      {/* 프로필 아바타 아이콘 - AI 프로필에 청춘스럽 로고 이미지 반영! */}
       <div className={`avatar ${isUser ? 'avatar-user' : 'avatar-assistant'}`}>
-        {isUser ? '👤' : '🤖'}
+        {isUser ? (
+          '👤'
+        ) : (
+          <img src="/logo.png" alt="청춘스럽 로고" className="avatar-ai-img" />
+        )}
       </div>
 
       <div className="message-content-area">
