@@ -177,15 +177,15 @@ html, body {
 }
 
 .header-logo-container {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #FFFFFF;
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(27, 42, 128, 0.08);
-  padding: 3px;
+  padding: 4px;
   border: 1px solid var(--border);
   flex-shrink: 0;
 }
