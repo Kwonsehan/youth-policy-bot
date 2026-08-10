@@ -260,7 +260,8 @@ export default function ChatWindow() {
               rel="noopener noreferrer"
               className="apply-cta-btn"
             >
-              🏠 도와줘룸즈 신청하기
+              <span className="apply-btn-full">🏠 도와줘룸즈 신청하기</span>
+              <span className="apply-btn-short">🏠 신청하기</span>
             </a>
           </div>
         </div>

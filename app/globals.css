@@ -244,6 +244,10 @@ html, body {
   }
 }
 
+.apply-btn-short {
+  display: none;
+}
+
 .filter-toggle {
   display: flex;
   align-items: center;
@@ -273,18 +277,33 @@ html, body {
 
 @media (max-width: 640px) {
   .chat-header {
-    padding: 10px 14px;
+    padding: 10px 10px;
+    gap: 4px;
+  }
+  .header-title-group {
+    gap: 6px;
   }
   .header-logo-container {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
   .header-main-text {
-    font-size: 15.5px;
+    font-size: 13.5px;
+  }
+  .apply-cta-btn {
+    padding: 4px 7px;
+    font-size: 11px;
+    border-radius: 12px;
+  }
+  .apply-btn-full {
+    display: none;
+  }
+  .apply-btn-short {
+    display: inline;
   }
   .filter-toggle {
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: 5px 8px;
+    font-size: 11px;
   }
   .btn-full-text {
     display: none;
