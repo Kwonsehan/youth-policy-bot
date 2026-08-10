@@ -261,7 +261,7 @@ export default function ChatWindow() {
               className="apply-cta-btn"
             >
               <span className="apply-btn-full">🏠 도와줘룸즈 신청하기</span>
-              <span className="apply-btn-short">🏠 신청하기</span>
+              <span className="apply-btn-short">🏠 방구하기 신청</span>
             </a>
           </div>
         </div>
