@@ -82,7 +82,8 @@ export async function POST(req: Request) {
         })),
       ],
       stream: true,
-      temperature: 0.7,
+      temperature: 0.3,
+      max_tokens: 600,
     });
 
     const encoder = new TextEncoder();
