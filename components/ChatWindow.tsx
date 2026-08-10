@@ -1,8 +1,7 @@
 'use client';
 // ============================================
 // components/ChatWindow.tsx
-// 메인 채팅창 컴포넌트
-// - 대표님 코멘트 100% 반영: URL 교정, 청년미래적금, 삭제 요청 질문 정돈 및 대전창업온라인 반영
+// 기존 메인 챗봇: 대전서구 청년공간 청춘스럽 정책안내 AI봇
 // ============================================
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -27,7 +26,6 @@ export const CATEGORY_TABS: CategoryTabInfo[] = [
   { id: '청년공간', label: '대전 청년공간', shortLabel: '청년공간', icon: '🏛️' },
 ];
 
-// 대표님 코멘트 피드백 100% 적용된 분야별 29개 최종 검증 추천 질문 풀
 export const CATEGORY_QUESTION_POOLS: Record<CategoryTab, string[]> = {
   '일자리': [
     '취업관련 홈페이지 알려줘',
