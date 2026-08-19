@@ -432,11 +432,41 @@ html, body {
   gap: 6px;
 }
 
+/* 🎲 랜덤 추천 정책 헤더: 제목 + 🔄 버튼 한 줄 정렬 */
+.related-policies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .related-title {
   font-size: 12.5px;
   font-weight: 800;
   color: var(--chungchun-blue);
 }
+
+/* 🔄 이모지 전용 새로고침 버튼 */
+.policy-refresh-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px 7px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.policy-refresh-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--chungchun-blue);
+  transform: rotate(180deg);
+}
+
 
 .policy-cards-grid {
   display: grid;

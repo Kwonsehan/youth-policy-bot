@@ -61,12 +61,12 @@ export async function POST(req: Request) {
       limit: 15,
     });
 
-    // 랜덤 추천 정책 1개 (매번 다채롭게 셔플 후 1개만 추출)
-    let top1Policy: Policy[] = [];
+    // 랜덤 추천 정책 5개 풀 생성 (클라이언트에서 🔄 버튼으로 교체 가능하도록 여유분 전달)
+    let top5Policies: Policy[] = [];
 
     if (rawPolicies.length > 0) {
       const shuffled = shuffleArray(rawPolicies);
-      top1Policy = shuffled.slice(0, 1);
+      top5Policies = shuffled.slice(0, 5);
     }
 
     const systemPrompt = buildSystemPrompt(rawPolicies);
@@ -90,10 +90,10 @@ export async function POST(req: Request) {
 
     const stream = new ReadableStream({
       async start(controller) {
-        // 1. 매번 다채롭게 무작위 셔플된 랜덤 추천 정책 카드 1개 클라이언트로 전달
+        // 1. 랜덤 셔플된 추천 정책 5개 풀 클라이언트로 전달 (🔄 버튼 새로고침용 여유분 포함)
         const policyEvent = `data: ${JSON.stringify({
           type: 'policies',
-          policies: top1Policy,
+          policies: top5Policies,
           isCustomFiltered,
         })}\n\n`;
         controller.enqueue(encoder.encode(policyEvent));

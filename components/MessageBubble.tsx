@@ -1,11 +1,12 @@
 'use client';
 // ============================================
 // components/MessageBubble.tsx
-// 개별 대화 말풍선 컴포넌트
-// - 맞춤 설정 안함 ➔ '💡 추천 정책 TOP 2'
-// - 맞춤 설정 함 ➔ '💡 맞춤 추천 정책 TOP 2'
+// 청춘스럽 정책안내 AI봇 전용 말풍선 컴포넌트
+// - 🎲 랜덤 추천 정책 카드 1개 표시
+// - 🔄 새로고침 이모지 버튼 클릭 시 다른 정책으로 랜덤 교체
 // ============================================
 
+import { useState } from 'react';
 import PolicyCard from './PolicyCard';
 import { Policy } from '@/lib/supabase';
 
@@ -22,14 +23,12 @@ interface MessageBubbleProps {
   message: Message;
 }
 
-// 텍스트 내 URL 링크 및 마크다운 링크 파싱 처리
+// 텍스트 내 마크다운 링크 파싱 처리
 function formatContent(text: string) {
   if (!text) return null;
 
-  // [텍스트](URL) 마크다운 링크 변환
   const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
-
-  const parts = [];
+  const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let match;
 
@@ -67,15 +66,31 @@ function formatContent(text: string) {
 export default function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
+  // 랜덤 추천 정책 새로고침을 위한 로컬 인덱스 상태
+  // message.policies 배열에서 currentIndex 번째 정책을 보여줌
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // 🔄 버튼 클릭 시: 현재와 다른 랜덤 인덱스로 교체
+  const handleRefreshPolicy = () => {
+    if (!message.policies || message.policies.length <= 1) return;
+    let nextIndex = currentIndex;
+    // 현재 인덱스와 다른 랜덤 인덱스 선택
+    while (nextIndex === currentIndex) {
+      nextIndex = Math.floor(Math.random() * message.policies.length);
+    }
+    setCurrentIndex(nextIndex);
+  };
+
   return (
     <div className={`message-wrapper ${isUser ? 'message-user' : 'message-assistant'}`}>
-      {/* 아바타 아이콘 */}
+      {/* 아바타 */}
       <div className={`avatar ${isUser ? 'avatar-user' : 'avatar-assistant'}`}>
         {isUser ? (
           '👤'
         ) : (
           <img src="/logo.png?v=3000" alt="청춘스럽 로고" className="avatar-ai-img" />
-        )}</div>
+        )}
+      </div>
 
       <div className="message-content-area">
         {/* 대화 말풍선 */}
@@ -94,22 +109,34 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             formatContent(message.content)
           )}
 
-          {/* 스트리밍 작성 커서 */}
+          {/* 스트리밍 커서 */}
           {!isUser && message.isStreaming && message.content && (
             <span className="streaming-pulse-cursor" />
           )}
         </div>
 
-        {/* 조건부 추천 정책 카드 렌더링 */}
-        {!isUser && message.policies && message.policies.length > 0 && (
+        {/* 🎲 랜덤 추천 정책 카드 (스트리밍 완료 후, AI 응답에만 표시) */}
+        {!isUser && message.policies && message.policies.length > 0 && !message.isStreaming && (
           <div className="related-policies">
-            <h4 className="related-title">
-              🎲 랜덤 추천 정책
-            </h4>
+            {/* 헤더: 제목 + 🔄 새로고침 버튼 */}
+            <div className="related-policies-header">
+              <h4 className="related-title">🎲 랜덤 추천 정책</h4>
+              {/* 🔄 이모지 전용 새로고침 버튼 (한글 없음) */}
+              <button
+                className="policy-refresh-btn"
+                onClick={handleRefreshPolicy}
+                title="다른 정책 추천받기"
+                aria-label="랜덤 추천 정책 새로고침"
+              >
+                🔄
+              </button>
+            </div>
             <div className="policy-cards-grid">
-              {message.policies.slice(0, 1).map((policy, idx) => (
-                <PolicyCard key={policy.id || idx} policy={policy} index={idx} />
-              ))}
+              <PolicyCard
+                key={`${message.id}-${currentIndex}`}
+                policy={message.policies[currentIndex % message.policies.length]}
+                index={0}
+              />
             </div>
           </div>
         )}
