@@ -1,6 +1,6 @@
 /* ============================================
-   globals.css — 도와줘룸즈 AI챗봇 '루미' 디자인 시스템
-   '도와줘룸즈 (helproomz.imweb.me)' 시그니처 시안 스카이 블루 테마
+   globals.css — 청춘스럽 정책안내 AI봇 디자인 시스템
+   대전서구 청년공간 '청춘스럽' 딥블루 브랜드 테마 (#1B2A80) 100% 고정
    ============================================ */
 
 /* ===== 기본 초기화 ===== */
@@ -11,39 +11,39 @@
 }
 
 :root {
-  /* ===== 도와줘룸즈 공식 브랜드 컬러 시스템 ===== */
-  --helproomz-blue:        #2BB7EC;  /* 도와줘룸즈 시그니처 스카이 블루 */
-  --helproomz-blue-dark:   #009FD9;  /* 딥 스카이 블루 */
-  --helproomz-blue-light:  #E8FAFF;  /* 파스텔 수분 블루 */
-  --helproomz-accent:      #FFB800;  /* 옐로우 포인트 */
-  --helproomz-orange:      #FF6B00;  /* 오렌지 포인트 */
+  /* ===== 청춘스럽 공식 브랜드 컬러 시스템 ===== */
+  --chungchun-blue:        #1B2A80;  /* C100 M95 Y5 K0 — 청춘스럽 딥 블루 (메인) */
+  --chungchun-blue-light:  #2B3EA6;
+  --chungchun-yellow:      #F5B800;  /* C6 M26 Y98 K0 — 옐로우 포인트 */
+  --chungchun-orange:      #F04E23;  /* C0 M80 Y95 K0 — 오렌지 */
+  --chungchun-dark-gray:   #22252A;
 
   /* ===== 디자인 토큰 ===== */
-  --primary:        var(--helproomz-blue);
-  --primary-light:  #58D3F8;
-  --primary-dark:   var(--helproomz-blue-dark);
-  --accent:         var(--helproomz-accent);
-  --accent-light:   #FFF6D6;
-  --accent-orange:  var(--helproomz-orange);
+  --primary:        var(--chungchun-blue);
+  --primary-light:  #3D52D5;
+  --primary-dark:   #121C59;
+  --accent:         var(--chungchun-yellow);
+  --accent-light:   #FFF3C4;
+  --accent-orange:  var(--chungchun-orange);
 
-  --bg-page:        #EBF8FF;  /* 도와줘룸즈 맑은 파스텔 하늘색 배경 */
+  --bg-page:        #EFF4FA;  /* 파스텔 소라색 배경 */
   --bg-card:        #FFFFFF;
-  --bg-elevated:    #F2F9FD;
-  --bg-input:       #F0F8FD;
+  --bg-elevated:    #F7FAFE;
+  --bg-input:       #F0F4FA;
 
-  --text-primary:   #1E293B;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
+  --text-primary:   #1E2538;
+  --text-secondary: #586788;
+  --text-muted:     #8C9BAE;
 
-  --border:         #D4EEFC;
-  --border-hover:   var(--helproomz-blue);
+  --border:         #DCE4F0;
+  --border-hover:   #1B2A80;
 
-  --user-bubble:    linear-gradient(135deg, #2BB7EC, #009FD9);
-  --ai-bubble:      #F4FAFF;
+  --user-bubble:    linear-gradient(135deg, #1B2A80, #2B3EA6);
+  --ai-bubble:      #F4F7FC;
 
-  --shadow-sm:   0 2px 8px rgba(43, 183, 236, 0.08);
-  --shadow-md:   0 8px 24px rgba(43, 183, 236, 0.12);
-  --shadow-glow: 0 0 20px rgba(43, 183, 236, 0.18);
+  --shadow-sm:   0 2px 8px rgba(27, 42, 128, 0.05);
+  --shadow-md:   0 8px 24px rgba(27, 42, 128, 0.08);
+  --shadow-glow: 0 0 20px rgba(27, 42, 128, 0.12);
 
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -67,11 +67,11 @@ html, body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #BBE7FA;
+  background: #C4D2E6;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
 }
 
 /* ============================================
@@ -85,38 +85,13 @@ html, body {
   justify-content: center;
   overflow: hidden;
   padding: 16px;
-  background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #EBF8FF 75%);
+  background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #EFF4FA 70%);
 }
 
 @media (max-width: 640px) {
   .page-wrapper {
     padding: 0;
   }
-}
-
-.bg-decoration {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.bg-glow-1 {
-  position: absolute;
-  top: -10%;
-  left: 20%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(43, 183, 236, 0.08) 0%, transparent 70%);
-}
-
-.bg-glow-2 {
-  position: absolute;
-  bottom: -10%;
-  right: 15%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 184, 0, 0.08) 0%, transparent 70%);
 }
 
 /* ============================================
@@ -147,7 +122,7 @@ html, body {
 }
 
 /* ============================================
-   헤더 (도와줘룸즈 루미 캐릭터 로고 + AI챗봇 루미)
+   헤더 (청춘스럽 딥블루 #1B2A80 고정)
    ============================================ */
 .chat-header {
   display: flex;
@@ -177,15 +152,15 @@ html, body {
 }
 
 .header-logo-container {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #FFFFFF;
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px rgba(43, 183, 236, 0.12);
-  padding: 3px;
+  box-shadow: 0 2px 8px rgba(27, 42, 128, 0.08);
+  padding: 4px;
   border: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -199,55 +174,14 @@ html, body {
 .header-main-text {
   font-size: 19px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   letter-spacing: -0.5px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 눈에 띄는 '도와줘룸즈 신청하기' 파란색 펄스 CTA 버튼 */
-.apply-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 13px;
-  background: linear-gradient(135deg, #0088FF 0%, #2BD2FF 100%);
-  color: #ffffff !important;
-  font-size: 13px;
-  font-weight: 800;
-  border-radius: 20px;
-  text-decoration: none !important;
-  box-shadow: 0 4px 12px rgba(0, 136, 255, 0.35);
-  transition: all 0.2s ease;
-  animation: pulseGlowBlue 1.8s infinite ease-in-out;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.apply-cta-btn:hover {
-  transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 6px 16px rgba(0, 136, 255, 0.55);
-  background: linear-gradient(135deg, #0077EE 0%, #00B8FF 100%);
-}
-
-@keyframes pulseGlowBlue {
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 136, 255, 0.65), 0 4px 12px rgba(0, 136, 255, 0.35);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 0 7px rgba(0, 136, 255, 0), 0 4px 16px rgba(0, 136, 255, 0.5);
-    transform: scale(1.03);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 136, 255, 0), 0 4px 12px rgba(0, 136, 255, 0.35);
-    transform: scale(1);
-  }
-}
-
-.apply-btn-short {
-  display: none;
-}
-
+/* 정책 상담 신청 버튼 */
 .filter-toggle {
   display: flex;
   align-items: center;
@@ -256,7 +190,7 @@ html, body {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -265,10 +199,11 @@ html, body {
   white-space: nowrap;
 }
 
-.filter-toggle:hover, .filter-toggle-active {
-  background: var(--helproomz-blue);
+.filter-toggle:hover,
+.filter-toggle-active {
+  background: var(--chungchun-blue);
   color: #ffffff;
-  border-color: var(--helproomz-blue);
+  border-color: var(--chungchun-blue);
 }
 
 .btn-short-text {
@@ -277,210 +212,24 @@ html, body {
 
 @media (max-width: 640px) {
   .chat-header {
-    padding: 10px 10px;
-    gap: 4px;
-  }
-  .header-title-group {
-    gap: 6px;
+    padding: 10px 14px;
   }
   .header-logo-container {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
   }
   .header-main-text {
-    font-size: 13.5px;
-  }
-  .apply-cta-btn {
-    padding: 4px 7px;
-    font-size: 11px;
-    border-radius: 12px;
-  }
-  .apply-btn-full {
-    display: none;
-  }
-  .apply-btn-short {
-    display: inline;
+    font-size: 15.5px;
   }
   .filter-toggle {
-    padding: 5px 8px;
-    font-size: 11px;
+    padding: 6px 10px;
+    font-size: 12px;
   }
   .btn-full-text {
     display: none;
   }
   .btn-short-text {
     display: inline;
-  }
-}
-
-/* ============================================
-   맞춤 상황 체크 필터 (모바일 컴팩트 슬림화)
-   ============================================ */
-.filter-panel {
-  padding: 14px 20px;
-  background: #F0F9FE;
-  border-bottom: 1px solid var(--border);
-  max-height: 42vh;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.situation-filter-box {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.filter-header-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.filter-title {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--helproomz-blue-dark);
-}
-
-.reset-filter-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 11.5px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.reset-filter-btn:hover {
-  color: var(--helproomz-orange);
-}
-
-.filter-row {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-bottom: 6px;
-  border-bottom: 1px dashed #D6EDFA;
-}
-
-.filter-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.flex-row {
-  flex-direction: row;
-  gap: 16px;
-  align-items: center;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  width: 100%;
-}
-
-.filter-label-text {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #334155;
-  min-width: 55px;
-}
-
-.filter-select {
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: #ffffff;
-  font-size: 12px;
-  color: var(--text-primary);
-  outline: none;
-}
-
-.input-with-unit, .input-range {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-}
-
-.filter-input-number {
-  width: 65px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: #ffffff;
-  font-size: 12px;
-  text-align: center;
-}
-
-.chip-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.filter-chip {
-  padding: 4px 10px;
-  border-radius: 14px;
-  border: 1px solid #C4E8FA;
-  background: #ffffff;
-  color: #475569;
-  font-size: 11.5px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.filter-chip:hover {
-  border-color: var(--helproomz-blue);
-  color: var(--helproomz-blue-dark);
-}
-
-.chip-selected {
-  background: var(--helproomz-blue) !important;
-  color: #ffffff !important;
-  border-color: var(--helproomz-blue) !important;
-  font-weight: 700;
-}
-
-@media (max-width: 640px) {
-  .filter-panel {
-    padding: 10px 12px;
-    max-height: 38vh;
-  }
-  .situation-filter-box {
-    gap: 8px;
-  }
-  .filter-title {
-    font-size: 13px;
-  }
-  .filter-label-text {
-    font-size: 11.5px;
-    min-width: 48px;
-  }
-  .filter-select {
-    padding: 4px 8px;
-    font-size: 11.5px;
-  }
-  .filter-input-number {
-    width: 55px;
-    padding: 3px 5px;
-    font-size: 11.5px;
-  }
-  .filter-chip {
-    padding: 3px 8px;
-    font-size: 11px;
-    border-radius: 12px;
-  }
-  .flex-row {
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
   }
 }
 
@@ -518,7 +267,7 @@ html, body {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-pill);
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -529,28 +278,28 @@ html, body {
   overflow: hidden;
 }
 
+.avatar-assistant {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border);
+  padding: 2px;
+}
+
+.avatar-ai-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.avatar-user {
+  background: var(--chungchun-orange);
+}
+
 @media (max-width: 640px) {
   .avatar {
     width: 34px;
     height: 34px;
     font-size: 15px;
   }
-}
-
-.avatar-user {
-  background: var(--helproomz-orange);
-}
-
-.avatar-assistant {
-  background: #ffffff;
-  border: 1px solid var(--border);
-}
-
-.avatar-logo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 2px;
 }
 
 .message-content-area {
@@ -584,17 +333,14 @@ html, body {
 .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
   margin-top: 10px;
   margin-bottom: 6px;
-  color: var(--helproomz-blue-dark);
-}
-.bubble h3 {
-  font-size: 16px;
+  color: var(--chungchun-blue);
 }
 
 .bubble-user {
   background: var(--user-bubble);
   color: #ffffff;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 12px rgba(43, 183, 236, 0.2);
+  box-shadow: 0 4px 12px rgba(27, 42, 128, 0.15);
 }
 
 .bubble-assistant {
@@ -605,17 +351,17 @@ html, body {
 }
 
 .chat-link {
-  color: #0284C7;
+  color: #2563EB;
   text-decoration: underline;
   font-weight: 600;
 }
 
 .chat-link:hover {
-  color: #0369A1;
+  color: #1D4ED8;
 }
 
 /* ============================================
-   AI 로딩 표시 (바운싱 점 ● ● ● 애니메이션)
+   AI 로딩 (바운싱 점 애니메이션)
    ============================================ */
 .ai-loading-container {
   display: flex;
@@ -627,7 +373,7 @@ html, body {
 .loading-text {
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .typing-dots {
@@ -640,7 +386,7 @@ html, body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--helproomz-blue);
+  background-color: var(--chungchun-blue);
   animation: bounceDot 1.4s infinite ease-in-out both;
 }
 
@@ -656,7 +402,7 @@ html, body {
   40% {
     transform: scale(1);
     opacity: 1;
-    background-color: var(--helproomz-accent);
+    background-color: var(--chungchun-yellow);
   }
 }
 
@@ -665,7 +411,7 @@ html, body {
   width: 8px;
   height: 15px;
   margin-left: 4px;
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   border-radius: 2px;
   animation: pulseCursor 0.8s infinite alternate;
   vertical-align: middle;
@@ -673,11 +419,11 @@ html, body {
 
 @keyframes pulseCursor {
   0% { opacity: 0.3; transform: scaleY(0.8); }
-  100% { opacity: 1; transform: scaleY(1); background-color: var(--helproomz-orange); }
+  100% { opacity: 1; transform: scaleY(1); background-color: var(--chungchun-orange); }
 }
 
 /* ============================================
-   추천 정책 카드 TOP 2 (슬림 컴팩트 디자인)
+   랜덤 추천 정책 카드 (1개)
    ============================================ */
 .related-policies {
   margin-top: 4px;
@@ -689,29 +435,21 @@ html, body {
 .related-title {
   font-size: 12.5px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .policy-cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
-@media (max-width: 640px) {
-  .policy-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-}
-
-/* 슬림 컴팩트 카드 */
 .policy-card-compact {
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
-  box-shadow: 0 2px 6px rgba(43, 183, 236, 0.05);
+  box-shadow: 0 2px 6px rgba(27, 42, 128, 0.04);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -719,8 +457,8 @@ html, body {
 }
 
 .policy-card-compact:hover {
-  border-color: var(--helproomz-blue);
-  box-shadow: 0 4px 12px rgba(43, 183, 236, 0.12);
+  border-color: var(--chungchun-blue);
+  box-shadow: 0 4px 12px rgba(27, 42, 128, 0.1);
 }
 
 .card-compact-header {
@@ -731,8 +469,8 @@ html, body {
 }
 
 .compact-badge {
-  background: var(--helproomz-blue-light);
-  color: #0284C7;
+  background: var(--accent-light);
+  color: #B45309;
   font-weight: 700;
   padding: 1px 7px;
   border-radius: var(--radius-pill);
@@ -746,7 +484,7 @@ html, body {
 .compact-title {
   font-size: 13.5px;
   font-weight: 800;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   line-height: 1.35;
   margin-top: 2px;
 }
@@ -775,22 +513,22 @@ html, body {
 }
 
 .compact-link {
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   font-weight: 800;
   text-decoration: none;
   font-size: 12px;
 }
 
 .compact-link:hover {
-  color: var(--helproomz-blue);
+  color: var(--chungchun-blue-light);
 }
 
 /* ============================================
-   분야별 2단계 추천 질문 탭 (모바일 1라인 콤팩트)
+   추천 질문 탭 (💼 일자리·취업 첫번째 고정)
    ============================================ */
 .suggestions {
   padding: 12px 24px;
-  background: #F4FBFE;
+  background: #F8FAFD;
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -816,14 +554,14 @@ html, body {
 .suggestions-label {
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
 }
 
 .toggle-icon {
   font-size: 11.5px;
   color: var(--text-secondary);
   font-weight: 600;
-  background: #E2F4FD;
+  background: #EAF0F8;
   padding: 2px 7px;
   border-radius: var(--radius-pill);
 }
@@ -834,14 +572,14 @@ html, body {
   border-radius: var(--radius-pill);
   padding: 4px 10px;
   font-size: 11.5px;
-  color: var(--helproomz-blue-dark);
+  color: var(--chungchun-blue);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .refresh-btn:hover {
-  background: var(--helproomz-blue);
+  background: var(--chungchun-blue);
   color: #ffffff;
 }
 
@@ -877,20 +615,21 @@ html, body {
 }
 
 .category-tab-btn:hover {
-  border-color: var(--helproomz-blue);
-  color: var(--helproomz-blue-dark);
+  border-color: var(--chungchun-blue);
+  color: var(--chungchun-blue);
 }
 
 .tab-label-short {
   display: none;
 }
 
+/* 청춘스럽 딥블루 활성 탭 — #1B2A80 배경 + 옐로우 텍스트 */
 .active-cat-tab {
-  background: var(--helproomz-blue) !important;
-  color: #ffffff !important;
-  border-color: var(--helproomz-blue) !important;
+  background: var(--chungchun-blue) !important;
+  color: var(--chungchun-yellow) !important;
+  border-color: var(--chungchun-blue) !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 6px rgba(43, 183, 236, 0.2);
+  box-shadow: 0 2px 6px rgba(27, 42, 128, 0.15);
 }
 
 .suggestions-grid-3 {
@@ -916,13 +655,12 @@ html, body {
 }
 
 .suggestion-chip:hover {
-  border-color: var(--helproomz-blue);
-  background: #EBF8FF;
-  color: var(--helproomz-blue-dark);
+  border-color: var(--chungchun-blue);
+  background: #F0F4FA;
+  color: var(--chungchun-blue);
   font-weight: 700;
 }
 
-/* 모바일 전용 슬림 1라인 컴팩트 스타일 */
 @media (max-width: 640px) {
   .suggestions {
     padding: 8px 12px;
@@ -963,7 +701,7 @@ html, body {
 }
 
 /* ============================================
-   입력창 영역 (모바일 입력 폰트 및 placeholder 슬림화)
+   입력창
    ============================================ */
 .input-area {
   padding: 14px 24px;
@@ -991,12 +729,6 @@ html, body {
   border: 1px solid var(--border);
 }
 
-@media (max-width: 640px) {
-  .input-wrapper {
-    padding: 6px 12px;
-  }
-}
-
 .input-textarea {
   flex: 1;
   background: transparent;
@@ -1015,6 +747,9 @@ html, body {
 }
 
 @media (max-width: 640px) {
+  .input-wrapper {
+    padding: 6px 12px;
+  }
   .input-textarea {
     font-size: 13px;
   }
@@ -1023,12 +758,13 @@ html, body {
   }
 }
 
+/* 전송 버튼 — 청춘스럽 딥블루 + 옐로우 화살표 */
 .send-btn {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-pill);
-  background: var(--helproomz-blue);
-  color: #ffffff;
+  background: var(--chungchun-blue);
+  color: var(--chungchun-yellow);
   border: none;
   font-size: 18px;
   font-weight: bold;
@@ -1040,18 +776,22 @@ html, body {
   flex-shrink: 0;
 }
 
-@media (max-width: 640px) {
-  .send-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
-  }
+.send-btn:hover {
+  background: var(--chungchun-blue-light);
 }
 
 .send-btn:disabled {
   background: #CBD5E1;
   color: #ffffff;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .send-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
 }
 
 .input-hint {
@@ -1065,3 +805,24 @@ html, body {
     font-size: 10.5px;
   }
 }
+
+/* ============================================
+   로딩 닷 (전송 버튼 내부)
+   ============================================ */
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.loading-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: bounceDot 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0s; }
