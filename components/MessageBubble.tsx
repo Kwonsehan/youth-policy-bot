@@ -104,10 +104,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         {!isUser && message.policies && message.policies.length > 0 && (
           <div className="related-policies">
             <h4 className="related-title">
-              {message.isCustomFiltered ? '💡 맞춤 추천 정책 TOP 2' : '💡 추천 정책 TOP 2'}
+              🎲 랜덤 추천 정책
             </h4>
             <div className="policy-cards-grid">
-              {message.policies.slice(0, 2).map((policy, idx) => (
+              {message.policies.slice(0, 1).map((policy, idx) => (
                 <PolicyCard key={policy.id || idx} policy={policy} index={idx} />
               ))}
             </div>

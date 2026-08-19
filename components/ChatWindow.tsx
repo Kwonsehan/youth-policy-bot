@@ -246,44 +246,28 @@ export default function ChatWindow() {
           <div className="header-title-group">
             <div className="header-logo-container">
               <img
-                src="/logo.png"
-                alt="도와줘룸즈 루미 캐릭터 로고"
+                src="/logo.png?v=3000"
+                alt="대전서구 청년공간 청춘스럽 로고"
                 className="header-logo-img"
               />
             </div>
             <h1 className="header-main-text">
-              <span>도와줘룸즈 AI챗봇 '루미'</span>
+              <span>청춘스럽 정책안내 AI봇</span>
             </h1>
-            <a
-              href="https://helproomz.imweb.me/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="apply-cta-btn"
-            >
-              <span className="apply-btn-full">🏠 도와줘룸즈 신청하기</span>
-              <span className="apply-btn-short">🏠 방구하기 신청</span>
-            </a>
           </div>
         </div>
+        {/* 정책 상담 신청 버튼 (링크는 추후 추가 예정) */}
         <button
-          className={`filter-toggle ${isFilterOpen ? 'filter-toggle-active' : ''}`}
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="filter-toggle"
+          onClick={() => {/* 링크 추후 연결 예정 */}}
         >
-          <span className="btn-full-text">📋 내 맞춤 상황 체크 {isFilterOpen ? '닫기' : '설정'}</span>
-          <span className="btn-short-text">📋 맞춤 {isFilterOpen ? '닫기' : '설정'}</span>
+          <span className="btn-full-text">📋 정책 상담 신청</span>
+          <span className="btn-short-text">📋 상담 신청</span>
         </button>
       </header>
 
-      {/* ========== 맞춤 상황 체크 필터 패널 ========== */}
-      {isFilterOpen && (
-        <div className="filter-panel">
-          <PolicyFilter
-            filter={filter}
-            onChangeFilter={setFilter}
-            onResetFilter={() => setFilter(initialFilter)}
-          />
-        </div>
-      )}
+      {/* 맞춤 필터 패널 제거됨 (정책 상담 신청 버튼으로 대체) */}
+
 
       {/* ========== 메시지 대화 영역 ========== */}
       <main className="messages-area">

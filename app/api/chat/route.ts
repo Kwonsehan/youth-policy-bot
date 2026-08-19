@@ -61,12 +61,12 @@ export async function POST(req: Request) {
       limit: 15,
     });
 
-    // 특정 카드가 고정 노출되는 현상을 완전히 해결하기 위한 강력한 무작위 셔플
-    let top2Policies: Policy[] = [];
+    // 랜덤 추천 정책 1개 (매번 다채롭게 셔플 후 1개만 추출)
+    let top1Policy: Policy[] = [];
 
     if (rawPolicies.length > 0) {
       const shuffled = shuffleArray(rawPolicies);
-      top2Policies = shuffled.slice(0, 2);
+      top1Policy = shuffled.slice(0, 1);
     }
 
     const systemPrompt = buildSystemPrompt(rawPolicies);
@@ -83,17 +83,17 @@ export async function POST(req: Request) {
       ],
       stream: true,
       temperature: 0.3,
-      max_tokens: 600,
+      max_tokens: 1200,
     });
 
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
       async start(controller) {
-        // 1. 매번 다채롭게 무작위 셔플된 추천 정책 카드 2개 클라이언트로 전달
+        // 1. 매번 다채롭게 무작위 셔플된 랜덤 추천 정책 카드 1개 클라이언트로 전달
         const policyEvent = `data: ${JSON.stringify({
           type: 'policies',
-          policies: top2Policies,
+          policies: top1Policy,
           isCustomFiltered,
         })}\n\n`;
         controller.enqueue(encoder.encode(policyEvent));
