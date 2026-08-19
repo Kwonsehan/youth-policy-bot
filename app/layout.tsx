@@ -1,35 +1,35 @@
 // ============================================
-// app/layout.tsx — 루트 레이아웃
+// app/layout.tsx — 청춘스럽 정책안내 AI봇 루트 레이아웃
+// 브랜드: 대전서구 청년공간 청춘스럽 | 딥블루 #1B2A80
 // ============================================
 import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  // 메타데이터 및 OpenGraph 이미지의 기본 URL 설정
-  metadataBase: new URL('https://helproomz-bot.vercel.app'),
-  title: "도와줘룸즈 AI챗봇 '루미' | 청년을 위한 맞춤 주거·정책 안내",
+  metadataBase: new URL('https://youth-policy-bot.vercel.app'),
+  title: '청춘스럽 정책안내 AI봇 | 대전 청년정책 안내',
   description:
-    "도와줘룸즈 AI챗봇 '루미' 서비스. 청년을 위한 맞춤 주거, 일자리, 금융, 복지 정책을 쉽고 빠르게 확인하세요.",
-  keywords: ['도와줘룸즈', '루미', '청년주거', '청년정책', 'AI챗봇', '주거지원', '청년지원'],
+    '대전서구 청년공간 청춘스럽의 청년정책 전문 AI 안내봇. 일자리, 주거, 금융, 창업, 복지, 대전 10개 청년공간 정보를 빠르고 정확하게 안내해 드립니다.',
+  keywords: ['청춘스럽', '대전청년정책', '청년공간', 'AI챗봇', '일자리', '주거지원', '청년지원', '대전서구'],
   openGraph: {
-    title: "도와줘룸즈 AI챗봇 '루미'",
-    description: '청년들의 주거·정책 고민을 해결하는 도와줘룸즈 맞춤 AI 안내봇',
+    title: '청춘스럽 정책안내 AI봇',
+    description: '대전 청년들을 위한 일자리·주거·복지·청년공간 정책 전문 AI 안내봇',
     locale: 'ko_KR',
     type: 'website',
     images: [
       {
-        url: '/helproomz-mascot-og.png',
+        url: '/logo.png',
         width: 1200,
         height: 630,
-        alt: "도와줘룸즈 AI챗봇 '루미' 대표 이미지",
+        alt: '대전서구 청년공간 청춘스럽 정책안내 AI봇',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "도와줘룸즈 AI챗봇 '루미'",
-    description: '청년들의 주거·정책 고민을 해결하는 도와줘룸즈 맞춤 AI 안내봇',
-    images: ['/helproomz-mascot-og.png'],
+    title: '청춘스럽 정책안내 AI봇',
+    description: '대전 청년들을 위한 일자리·주거·복지·청년공간 정책 전문 AI 안내봇',
+    images: ['/logo.png'],
   },
 };
 
@@ -41,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* Google Fonts - Pretendard (한국어 최적화 폰트) */}
+        {/* Google Fonts - Noto Sans KR (한국어 최적화 폰트) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -53,4 +53,3 @@ export default function RootLayout({
     </html>
   );
 }
-
