@@ -2,8 +2,7 @@
 // app/api/admin/consultations/route.ts
 // 관리자 전용 상담 신청 목록 조회 & 매칭 처리 API
 // - GET: 전체 신청 목록 + 상담사 목록 조회 (service_role 키 사용)
-// - PATCH: 상담사 배정 / 상태 변경 / 메모 저장
-// - 관리자 비밀번호: Authorization 헤더 또는 쿼리 파라미터로 검증
+// - PATCH: 상담사 배정 / 상태 변경 / 메모 저장 (안정적인 날짜 처리 및 상세 에러 반환)
 // ============================================================
 
 import { createDecipheriv } from 'crypto';
@@ -11,12 +10,13 @@ import { getSupabaseAdmin } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
-// AES-256-CBC 복호화 함수 (암호화 때의 역과정)
+// AES-256-CBC 복호화 함수
 function decrypt(encryptedText: string): string {
   try {
     const secretKey = process.env.CONSULTATION_ENCRYPT_KEY || '';
     const key = Buffer.from(secretKey.padEnd(32, '0').slice(0, 32), 'utf8');
     const [ivHex, dataHex] = encryptedText.split(':');
+    if (!ivHex || !dataHex) return encryptedText;
     const iv = Buffer.from(ivHex, 'hex');
     const encryptedData = Buffer.from(dataHex, 'hex');
     const decipher = createDecipheriv('aes-256-cbc', key, iv);
@@ -32,13 +32,11 @@ function isAdminAuthorized(req: Request): boolean {
   const adminPw = process.env.ADMIN_PASSWORD || '';
   if (!adminPw) return false;
 
-  // Authorization 헤더에서 비밀번호 확인 (Bearer 토큰 방식)
   const authHeader = req.headers.get('Authorization') || '';
   if (authHeader.startsWith('Bearer ')) {
     return authHeader.slice(7) === adminPw;
   }
 
-  // 쿼리 파라미터에서 확인
   const url = new URL(req.url);
   const pwParam = url.searchParams.get('pw') || '';
   return pwParam === adminPw;
@@ -47,15 +45,15 @@ function isAdminAuthorized(req: Request): boolean {
 // ── GET: 상담 신청 목록 조회 ──
 export async function GET(req: Request) {
   if (!isAdminAuthorized(req)) {
-    return Response.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    return Response.json({ error: '비밀번호 인증이 필요합니다.' }, { status: 401 });
   }
 
   const supabase = getSupabaseAdmin();
   if (!supabase) {
-    return Response.json({ error: 'Supabase 미설정 상태입니다.' }, { status: 503 });
+    return Response.json({ error: 'Supabase 연결 설정이 필요합니다.' }, { status: 503 });
   }
 
-  // 신청 목록 최신순 조회 (상담사 정보 JOIN)
+  // 신청 목록 최신순 조회
   const { data: requests, error: reqErr } = await supabase
     .from('consultation_requests')
     .select(`
@@ -68,7 +66,8 @@ export async function GET(req: Request) {
     .order('created_at', { ascending: false });
 
   if (reqErr) {
-    return Response.json({ error: '조회 오류: ' + reqErr.message }, { status: 500 });
+    console.error('[Admin GET Error]', reqErr);
+    return Response.json({ error: '신청 목록 조회 오류: ' + reqErr.message }, { status: 500 });
   }
 
   // 상담사 목록 조회
@@ -78,10 +77,11 @@ export async function GET(req: Request) {
     .order('name');
 
   if (counErr) {
+    console.error('[Admin Counselors Error]', counErr);
     return Response.json({ error: '상담사 조회 오류: ' + counErr.message }, { status: 500 });
   }
 
-  // 이름·전화번호 복호화하여 반환
+  // 이름·전화번호 복호화
   const decryptedRequests = (requests || []).map((r) => ({
     ...r,
     name: decrypt(r.name_encrypted),
@@ -96,39 +96,55 @@ export async function GET(req: Request) {
   });
 }
 
-// ── PATCH: 상담사 배정 / 상태 변경 ──
+// ── PATCH: 상담사 배정 / 상태 변경 / 일정 확정 ──
 export async function PATCH(req: Request) {
   if (!isAdminAuthorized(req)) {
-    return Response.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    return Response.json({ error: '비밀번호 인증이 필요합니다.' }, { status: 401 });
   }
 
   const supabase = getSupabaseAdmin();
   if (!supabase) {
-    return Response.json({ error: 'Supabase 미설정 상태입니다.' }, { status: 503 });
+    return Response.json({ error: 'Supabase 연결 설정이 필요합니다.' }, { status: 503 });
   }
 
-  const body = await req.json();
-  const { id, counselor_id, status, confirmed_date, admin_memo } = body;
+  try {
+    const body = await req.json();
+    const { id, counselor_id, status, confirmed_date, admin_memo } = body;
 
-  if (!id) {
-    return Response.json({ error: '신청 ID가 필요합니다.' }, { status: 400 });
+    if (!id) {
+      return Response.json({ error: '신청 ID가 누락되었습니다.' }, { status: 400 });
+    }
+
+    // 날짜 포맷 안전 변환 (ISO string 변환 또는 null)
+    let safeConfirmedDate: string | null = null;
+    if (confirmed_date && typeof confirmed_date === 'string' && confirmed_date.trim() !== '') {
+      const parsed = new Date(confirmed_date);
+      if (!isNaN(parsed.getTime())) {
+        safeConfirmedDate = parsed.toISOString();
+      }
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (counselor_id !== undefined) updateData.counselor_id = counselor_id || null;
+    if (status !== undefined) updateData.status = status;
+    if (confirmed_date !== undefined) updateData.confirmed_date = safeConfirmedDate;
+    if (admin_memo !== undefined) updateData.admin_memo = admin_memo || '';
+
+    const { data, error } = await supabase
+      .from('consultation_requests')
+      .update(updateData)
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('[Admin PATCH Supabase Error]', error);
+      return Response.json({ error: 'DB 업데이트 실패: ' + error.message }, { status: 500 });
+    }
+
+    return Response.json({ success: true, data });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : '알 수 없는 오류';
+    console.error('[Admin PATCH Server Error]', err);
+    return Response.json({ error: '서버 처리 오류: ' + msg }, { status: 500 });
   }
-
-  // 업데이트할 필드만 모아서 처리
-  const updateData: Record<string, unknown> = {};
-  if (counselor_id !== undefined) updateData.counselor_id = counselor_id || null;
-  if (status !== undefined) updateData.status = status;
-  if (confirmed_date !== undefined) updateData.confirmed_date = confirmed_date || null;
-  if (admin_memo !== undefined) updateData.admin_memo = admin_memo;
-
-  const { error } = await supabase
-    .from('consultation_requests')
-    .update(updateData)
-    .eq('id', id);
-
-  if (error) {
-    return Response.json({ error: '업데이트 오류: ' + error.message }, { status: 500 });
-  }
-
-  return Response.json({ success: true });
 }
