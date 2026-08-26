@@ -650,10 +650,10 @@ export default function AdminPage() {
                     value={assignCounselorId}
                     onChange={(e) => setAssignCounselorId(e.target.value)}
                   >
-                    <option value="">상담사를 선택해 주세요</option>
+                    <option value="">담당 상담사를 선택해 주세요</option>
                     {counselors.map(c => (
                       <option key={c.id} value={c.id}>
-                        {c.name} 선생님 ({c.specialty.join(', ')}) {!c.available ? '(부재중)' : ''}
+                        👤 {c.name} 상담사
                       </option>
                     ))}
                   </select>
