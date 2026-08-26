@@ -9,6 +9,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import MessageBubble, { Message } from './MessageBubble';
+import ConsultationModal from './ConsultationModal';
 import { Policy } from '@/lib/supabase';
 
 // 청춘스럽 전용 카테고리 탭 타입 (💼 일자리 첫번째 고정)
@@ -91,6 +92,8 @@ export default function ChatWindow() {
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(true);
   const [sessionId] = useState(() => uuidv4());
+  // 정책 상담 신청 모달 오픈 상태
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setSuggestedQuestions(getRandomThreeForCategory(activeCategoryTab));
@@ -236,15 +239,21 @@ export default function ChatWindow() {
             </h1>
           </div>
         </div>
-        {/* 정책 상담 신청 버튼 (링크는 대표님이 알려주시면 연결 예정) */}
+        {/* 정책 상담 신청 버튼 → 클릭 시 모달 오픈 */}
         <button
           className="filter-toggle"
-          onClick={() => { /* 링크 추후 연결 예정 */ }}
+          onClick={() => setIsModalOpen(true)}
         >
           <span className="btn-full-text">📋 정책 상담 신청</span>
           <span className="btn-short-text">📋 상담 신청</span>
         </button>
       </header>
+
+      {/* 정책 상담 신청 모달 */}
+      <ConsultationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
       {/* ========== 메시지 대화 영역 ========== */}
       <main className="messages-area">

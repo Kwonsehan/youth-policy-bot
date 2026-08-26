@@ -856,3 +856,495 @@ html, body {
 .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
 .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
 .loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+/* ============================================
+   정책 상담 신청 모달 (ConsultationModal.tsx)
+   청춘스럽 딥블루 #1B2A80 브랜드 디자인
+   ============================================ */
+
+/* 배경 딤 레이어 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 40, 0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(3px);
+  animation: backdropFadeIn 0.2s ease;
+}
+
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 모달 박스 */
+.modal-box {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(27, 42, 128, 0.18);
+  animation: modalSlideUp 0.25s ease;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* 모달 헤더 */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #EFF4FA;
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-icon {
+  font-size: 28px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1B2A80;
+  line-height: 1.3;
+}
+
+.modal-subtitle {
+  font-size: 12.5px;
+  color: #586788;
+  margin-top: 2px;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.modal-close-btn:hover {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+/* 단계 표시 바 */
+.modal-step-bar {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  gap: 8px;
+}
+
+.modal-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.4;
+}
+
+.modal-step-active {
+  opacity: 1;
+}
+
+.modal-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #DCE4F0;
+  color: #586788;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-step-active .modal-step-num {
+  background: #1B2A80;
+  color: #F5B800;
+}
+
+.modal-step-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #586788;
+}
+
+.modal-step-active .modal-step-label {
+  color: #1B2A80;
+}
+
+.modal-step-line {
+  flex: 1;
+  height: 2px;
+  background: #DCE4F0;
+  border-radius: 1px;
+}
+
+.modal-step-line-active {
+  background: #1B2A80;
+}
+
+/* 모달 내용 영역 */
+.modal-body {
+  padding: 4px 24px 24px;
+}
+
+.modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 필드 라벨 */
+.modal-field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1E2538;
+  margin-top: 12px;
+}
+
+.required-mark {
+  color: #DC2626;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.optional-mark {
+  color: #94A3B8;
+  font-weight: 400;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+/* 인풋 공통 */
+.modal-input,
+.modal-select,
+.modal-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #DCE4F0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: #1E2538;
+  background: #FAFCFF;
+  transition: border-color 0.15s;
+}
+
+.modal-input:focus,
+.modal-select:focus,
+.modal-textarea:focus {
+  border-color: #1B2A80;
+  background: #fff;
+}
+
+.modal-textarea {
+  resize: none;
+  line-height: 1.6;
+}
+
+.char-count {
+  font-size: 11.5px;
+  color: #94A3B8;
+  text-align: right;
+  margin-top: -4px;
+}
+
+/* 2열 배치 행 */
+.modal-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* 상담 분야 카드 그리드 */
+.category-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.category-card {
+  padding: 14px 12px;
+  background: #F8FAFD;
+  border: 1.5px solid #DCE4F0;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.category-card:hover {
+  border-color: #1B2A80;
+  background: #EEF2FF;
+}
+
+.category-card-active {
+  border-color: #1B2A80 !important;
+  background: #1B2A80 !important;
+}
+
+.category-card-active .category-card-label {
+  color: #F5B800 !important;
+}
+
+.category-card-active .category-card-desc {
+  color: #A5B4FC !important;
+}
+
+.category-card-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1E2538;
+}
+
+.category-card-desc {
+  font-size: 11.5px;
+  color: #94A3B8;
+}
+
+/* 상담 방식 선택 버튼 */
+.method-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 10px;
+  background: #F8FAFD;
+  border: 1.5px solid #DCE4F0;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #586788;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.method-btn:hover {
+  border-color: #1B2A80;
+  color: #1B2A80;
+}
+
+.method-btn-active {
+  background: #1B2A80 !important;
+  color: #F5B800 !important;
+  border-color: #1B2A80 !important;
+  font-weight: 800 !important;
+}
+
+/* 개인정보 동의 박스 */
+.privacy-box {
+  background: #F8FAFD;
+  border: 1px solid #DCE4F0;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.privacy-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1B2A80;
+  margin-bottom: 8px;
+}
+
+.privacy-content {
+  font-size: 12px;
+  color: #586788;
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+
+.privacy-check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1E2538;
+  cursor: pointer;
+}
+
+.privacy-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #1B2A80;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 오류 메시지 */
+.modal-error {
+  color: #DC2626;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  background: #FEF2F2;
+  border-radius: 8px;
+  margin-top: 8px;
+  border-left: 3px solid #DC2626;
+}
+
+/* 버튼 */
+.modal-primary-btn {
+  width: 100%;
+  padding: 13px;
+  background: #1B2A80;
+  color: #F5B800;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.modal-primary-btn:hover {
+  background: #2B3EA6;
+}
+
+.modal-primary-btn:disabled {
+  background: #CBD5E1;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.modal-secondary-btn {
+  flex: 0 0 auto;
+  padding: 13px 20px;
+  background: #F1F5F9;
+  color: #586788;
+  border: 1.5px solid #DCE4F0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.modal-secondary-btn:hover {
+  background: #E2E8F0;
+}
+
+.modal-btn-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.modal-btn-row .modal-primary-btn {
+  flex: 1;
+}
+
+/* 완료 화면 */
+.modal-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 0 8px;
+  gap: 12px;
+}
+
+.success-icon {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.success-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1B2A80;
+}
+
+.success-desc {
+  font-size: 14px;
+  color: #586788;
+  line-height: 1.7;
+}
+
+.receipt-box {
+  background: #EEF2FF;
+  border: 1.5px solid #A5B4FC;
+  border-radius: 12px;
+  padding: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.receipt-label {
+  font-size: 12px;
+  color: #586788;
+  font-weight: 600;
+}
+
+.receipt-id {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1B2A80;
+  letter-spacing: 2px;
+}
+
+.success-notice {
+  font-size: 12.5px;
+  color: #94A3B8;
+  line-height: 1.7;
+}
+
+/* 모바일 대응 */
+@media (max-width: 540px) {
+  .modal-box {
+    border-radius: 16px 16px 0 0;
+    max-height: 95vh;
+  }
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
