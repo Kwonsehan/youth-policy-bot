@@ -2,9 +2,9 @@
 // ============================================================
 // app/admin/page.tsx
 // 청춘스럽 정책 상담 관리자 매칭 대시보드
-// - 1. 목록 뷰 / 캘린더 뷰 원클릭 전환
-// - 2. 중앙 팝업 모달로 시원하고 편리한 상담사 매칭 처리
-// - 3. 📅 월별 상담 일정 캘린더 내장 (매칭 일정 시각화)
+// - 1. 날짜 + 시간(드롭다운) 분리 선택 UI로 브라우저 글자 깨짐 0% 완벽 해결
+// - 2. 1지망/2지망 원클릭 날짜 자동 입력 버튼 제공
+// - 3. 📋 목록 뷰 & 📅 상담 일정 캘린더 뷰 지원
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
@@ -43,6 +43,33 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }>
   '취소':     { bg: '#FEE2E2', color: '#991B1B', label: '❌ 취소' },
 };
 
+// ─── 30분 단위 시간 목록 (09:00 ~ 20:00) ───
+const TIME_OPTIONS = [
+  { value: '09:00', label: '오전 09:00' },
+  { value: '09:30', label: '오전 09:30' },
+  { value: '10:00', label: '오전 10:00' },
+  { value: '10:30', label: '오전 10:30' },
+  { value: '11:00', label: '오전 11:00' },
+  { value: '11:30', label: '오전 11:30' },
+  { value: '12:00', label: '오후 12:00 (정오)' },
+  { value: '12:30', label: '오후 12:30' },
+  { value: '13:00', label: '오후 01:00' },
+  { value: '13:30', label: '오후 01:30' },
+  { value: '14:00', label: '오후 02:00' },
+  { value: '14:30', label: '오후 02:30' },
+  { value: '15:00', label: '오후 03:00' },
+  { value: '15:30', label: '오후 03:30' },
+  { value: '16:00', label: '오후 04:00' },
+  { value: '16:30', label: '오후 04:30' },
+  { value: '17:00', label: '오후 05:00' },
+  { value: '17:30', label: '오후 05:30' },
+  { value: '18:00', label: '오후 06:00' },
+  { value: '18:30', label: '오후 06:30' },
+  { value: '19:00', label: '오후 07:00' },
+  { value: '19:30', label: '오후 07:30' },
+  { value: '20:00', label: '오후 08:00' },
+];
+
 // ─── 날짜 헬퍼 함수 ───
 function formatDate(dateStr?: string) {
   if (!dateStr) return '-';
@@ -60,28 +87,13 @@ function formatDateTime(dateStr?: string) {
   return `${formatDate(dateStr)} ${hours}:${mins}`;
 }
 
-// datetime-local input용 (YYYY-MM-DDTHH:mm)
-function toDateTimeLocalValue(dateStr?: string) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return '';
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const mins = String(d.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${mins}`;
-}
-
 export default function AdminPage() {
-  // 인증 및 탭 상태
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
-  // 데이터 상태
   const [requests, setRequests] = useState<ConsultationRequest[]>([]);
   const [counselors, setCounselors] = useState<Counselor[]>([]);
 
@@ -92,21 +104,20 @@ export default function AdminPage() {
   const [filterStatus, setFilterStatus] = useState<string>('전체');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // 모달 내 매칭 폼 상태
-  const [assignData, setAssignData] = useState<{
-    counselorId: string;
-    confirmedDate: string;
-    memo: string;
-  }>({ counselorId: '', confirmedDate: '', memo: '' });
+  // 날짜와 시간을 분리하여 관리 (글자 깨짐 0%)
+  const [assignCounselorId, setAssignCounselorId] = useState('');
+  const [assignDate, setAssignDate] = useState('');      // YYYY-MM-DD
+  const [assignTime, setAssignTime] = useState('14:00'); // HH:mm
+  const [assignMemo, setAssignMemo] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // 캘린더 연월 상태
   const [calYear, setCalYear] = useState(() => new Date().getFullYear());
-  const [calMonth, setCalMonth] = useState(() => new Date().getMonth()); // 0 ~ 11
+  const [calMonth, setCalMonth] = useState(() => new Date().getMonth());
 
-  // ── 로그인: 비밀번호로 데이터 조회 ──
+  // ── 로그인 ──
   const handleLogin = async () => {
     if (!password.trim()) { setLoginError('비밀번호를 입력해 주세요.'); return; }
     setIsLoading(true);
@@ -128,7 +139,7 @@ export default function AdminPage() {
     }
   };
 
-  // ── 데이터 새로고침 ──
+  // ── 새로고침 ──
   const handleRefresh = async () => {
     setIsLoading(true);
     try {
@@ -143,30 +154,51 @@ export default function AdminPage() {
     }
   };
 
-  // ── 모달 열기 ──
+  // ── 모달 열기 (기존 값 파싱) ──
   const openDetailModal = (req: ConsultationRequest) => {
     setSelectedReq(req);
     setFeedbackMsg(null);
-    setAssignData({
-      counselorId: req.counselor_id || '',
-      confirmedDate: toDateTimeLocalValue(req.confirmed_date),
-      memo: req.admin_memo || '',
-    });
+    setAssignCounselorId(req.counselor_id || '');
+    setAssignMemo(req.admin_memo || '');
+
+    if (req.confirmed_date) {
+      const d = new Date(req.confirmed_date);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const h = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        setAssignDate(`${y}-${m}-${day}`);
+        setAssignTime(`${h}:${min}`);
+      } else {
+        setAssignDate(req.preferred_date1 || '');
+        setAssignTime('14:00');
+      }
+    } else {
+      setAssignDate(req.preferred_date1 || '');
+      setAssignTime('14:00');
+    }
   };
 
-  // ── 모달 닫기 ──
   const closeDetailModal = () => {
     setSelectedReq(null);
     setFeedbackMsg(null);
   };
 
-  // ── 상담사 배정 및 상태 저장 ──
+  // ── 저장 실행 ──
   const handleSaveAssign = async (targetStatus: string) => {
     if (!selectedReq) return;
 
-    if (targetStatus === '매칭완료' && !assignData.counselorId) {
+    if (targetStatus === '매칭완료' && !assignCounselorId) {
       setFeedbackMsg({ type: 'error', text: '매칭할 상담사를 선택해 주세요.' });
       return;
+    }
+
+    // 날짜 + 시간 결합
+    let combinedDateTime: string | null = null;
+    if (assignDate) {
+      combinedDateTime = `${assignDate}T${assignTime || '14:00'}:00`;
     }
 
     setIsSaving(true);
@@ -178,10 +210,10 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: selectedReq.id,
-          counselor_id: assignData.counselorId || null,
+          counselor_id: assignCounselorId || null,
           status: targetStatus,
-          confirmed_date: assignData.confirmedDate || null,
-          admin_memo: assignData.memo,
+          confirmed_date: combinedDateTime,
+          admin_memo: assignMemo,
         }),
       });
 
@@ -191,19 +223,17 @@ export default function AdminPage() {
         throw new Error(result.error || '저장에 실패했습니다.');
       }
 
-      setFeedbackMsg({ type: 'success', text: `✅ 상태가 [${targetStatus}]로 성공적으로 변경되었습니다!` });
+      setFeedbackMsg({ type: 'success', text: `✅ [${targetStatus}] 상태로 저장되었습니다!` });
       await handleRefresh();
 
-      // 수정된 내용으로 모달 최신화
       setSelectedReq(prev => prev ? {
         ...prev,
         status: targetStatus,
-        counselor_id: assignData.counselorId || undefined,
-        confirmed_date: assignData.confirmedDate || undefined,
-        admin_memo: assignData.memo,
+        counselor_id: assignCounselorId || undefined,
+        confirmed_date: combinedDateTime || undefined,
+        admin_memo: assignMemo,
       } : null);
 
-      // 1초 뒤 모달 자동 닫기
       setTimeout(() => {
         closeDetailModal();
       }, 1200);
@@ -216,7 +246,7 @@ export default function AdminPage() {
     }
   };
 
-  // ── 목록 필터링 ──
+  // ── 필터링된 신청 목록 ──
   const filteredRequests = useMemo(() => {
     return requests.filter(r => {
       const matchStatus = filterStatus === '전체' || r.status === filterStatus;
@@ -232,27 +262,22 @@ export default function AdminPage() {
 
   // ── 캘린더 날짜 계산 ──
   const calendarDays = useMemo(() => {
-    const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0(일) ~ 6(토)
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
     const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
-
     const days: Array<{ dayNum: number | null; dateStr: string | null }> = [];
 
-    // 앞쪽 빈 칸
     for (let i = 0; i < firstDay; i++) {
       days.push({ dayNum: null, dateStr: null });
     }
-
-    // 날짜 칸
     for (let d = 1; d <= totalDays; d++) {
       const mStr = String(calMonth + 1).padStart(2, '0');
       const dStr = String(d).padStart(2, '0');
       days.push({ dayNum: d, dateStr: `${calYear}-${mStr}-${dStr}` });
     }
-
     return days;
   }, [calYear, calMonth]);
 
-  // ─── 1. 비밀번호 로그인 화면 ───
+  // ── 1. 로그인 뷰 ──
   if (!isLoggedIn) {
     return (
       <div style={styles.loginWrap}>
@@ -282,21 +307,20 @@ export default function AdminPage() {
     );
   }
 
-  // ─── 2. 메인 대시보드 화면 ───
+  // ── 2. 메인 대시보드 ──
   return (
     <div style={styles.dashContainer}>
 
-      {/* ===== 상단 네비게이션 헤더 ===== */}
+      {/* 헤더 */}
       <header style={styles.header}>
         <div style={styles.headerLeft}>
           <span style={{ fontSize: 26 }}>🏛️</span>
           <div>
-            <h1 style={styles.headerTitle}>청춘스럽 정책상담 관리 시스템</h1>
+            <h1 style={styles.headerTitle}>청춘스럽 정책상담 매칭 관리 시스템</h1>
             <p style={styles.headerSub}>총 {requests.length}건 접수 · 대전 서구 청년공간 청춘스럽</p>
           </div>
         </div>
 
-        {/* 뷰 전환 탭 & 컨트롤 */}
         <div style={styles.headerRight}>
           <div style={styles.viewToggleGroup}>
             <button
@@ -326,7 +350,7 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {/* ===== 요약 현황 통계 카드 ===== */}
+      {/* 통계 바 */}
       <section style={styles.statsGrid}>
         {['접수대기', '매칭완료', '상담완료', '취소'].map((s) => {
           const cnt = requests.filter(r => r.status === s).length;
@@ -344,15 +368,12 @@ export default function AdminPage() {
         })}
       </section>
 
-      {/* ===== 메인 컨텐츠 영역 ===== */}
+      {/* 메인 뷰 */}
       <main style={styles.mainContent}>
 
-        {/* ──────────────────────────────────
-            [뷰 1] 📋 신청 목록 테이블/카드 뷰
-           ────────────────────────────────── */}
+        {/* 📋 신청 목록 뷰 */}
         {viewMode === 'list' && (
           <div style={styles.cardContainer}>
-            {/* 필터 및 검색 바 */}
             <div style={styles.toolbar}>
               <div style={styles.filterButtonGroup}>
                 {['전체', '접수대기', '매칭완료', '상담완료', '취소'].map((s) => (
@@ -375,7 +396,6 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* 신청 목록 그리드 */}
             {filteredRequests.length === 0 ? (
               <div style={styles.emptyState}>
                 <span style={{ fontSize: 36 }}>📭</span>
@@ -399,7 +419,7 @@ export default function AdminPage() {
                           </span>
                           <span style={styles.catBadge}>{r.category}</span>
                         </div>
-                        <span style={styles.dateText}>신청일: {formatDate(r.created_at)}</span>
+                        <span style={styles.dateText}>신청: {formatDate(r.created_at)}</span>
                       </div>
 
                       <div style={styles.cardMainInfo}>
@@ -411,11 +431,11 @@ export default function AdminPage() {
 
                       <div style={styles.cardDetailBox}>
                         <p style={styles.detailLine}>
-                          <span style={styles.detailKey}>희망일시:</span> 1지망({formatDate(r.preferred_date1)}) / 2지망({formatDate(r.preferred_date2)})
+                          <span style={styles.detailKey}>희망일:</span> 1지망({formatDate(r.preferred_date1)}) / 2지망({formatDate(r.preferred_date2)})
                         </p>
                         <p style={styles.detailLine}>
-                          <span style={styles.detailKey}>담당상담사:</span> <b>{counselorName}</b>
-                          {r.confirmed_date && <span style={{ marginLeft: 6, color: '#166534' }}>(확정: {formatDateTime(r.confirmed_date)})</span>}
+                          <span style={styles.detailKey}>상담사:</span> <b>{counselorName}</b>
+                          {r.confirmed_date && <span style={{ marginLeft: 6, color: '#166534', fontWeight: 700 }}>({formatDateTime(r.confirmed_date)})</span>}
                         </p>
                         {r.concern && (
                           <p style={styles.concernPreview}>
@@ -435,12 +455,9 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ──────────────────────────────────
-            [뷰 2] 📅 상담 일정 캘린더 뷰
-           ────────────────────────────────── */}
+        {/* 📅 캘린더 뷰 */}
         {viewMode === 'calendar' && (
           <div style={styles.calendarContainer}>
-            {/* 캘린더 상단 월 이동 헤더 */}
             <div style={styles.calHeader}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <button
@@ -482,7 +499,6 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* 요일 헤더 */}
             <div style={styles.calWeekdays}>
               {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
                 <div key={w} style={{ ...styles.calWeekdayCol, color: idx === 0 ? '#DC2626' : idx === 6 ? '#2563EB' : '#475569' }}>
@@ -491,14 +507,12 @@ export default function AdminPage() {
               ))}
             </div>
 
-            {/* 캘린더 그리드 */}
             <div style={styles.calGrid}>
               {calendarDays.map((item, idx) => {
                 if (!item.dateStr || item.dayNum === null) {
                   return <div key={`empty-${idx}`} style={styles.calEmptyCell} />;
                 }
 
-                // 해당 날짜에 확정된 상담 목록
                 const dayEvents = requests.filter(r => {
                   if (!r.confirmed_date) return false;
                   return r.confirmed_date.startsWith(item.dateStr!);
@@ -551,13 +565,12 @@ export default function AdminPage() {
       </main>
 
       {/* ───────────────────────────────────────────────────
-          [중앙 팝업 모달] 📋 상담 상세 정보 & 매칭 처리 창
+          [중앙 모달] 📋 상담 상세 정보 & 매칭 처리 창 (글자 깨짐 0%)
          ─────────────────────────────────────────────────── */}
       {selectedReq && (
         <div style={styles.modalOverlay} onClick={closeDetailModal}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
 
-            {/* 모달 상단 헤더 */}
             <div style={styles.modalHeader}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -572,7 +585,6 @@ export default function AdminPage() {
               <button style={styles.modalCloseBtn} onClick={closeDetailModal}>✕</button>
             </div>
 
-            {/* 피드백 메시지 (성공/실패) */}
             {feedbackMsg && (
               <div style={{
                 ...styles.feedbackAlert,
@@ -584,10 +596,9 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 모달 바디: 2열 구조 (왼쪽: 신청 정보, 오른쪽: 상담사 배정 폼) */}
             <div style={styles.modalBodyGrid}>
 
-              {/* [왼쪽 컬럼] 신청자 기본 정보 */}
+              {/* 신청자 정보 */}
               <div style={styles.infoCol}>
                 <h4 style={styles.sectionHeading}>👤 신청자 정보</h4>
                 <div style={styles.infoTable}>
@@ -607,17 +618,16 @@ export default function AdminPage() {
                 )}
               </div>
 
-              {/* [오른쪽 컬럼] 상담사 배정 및 일정 확정 폼 */}
+              {/* 상담사 배정 및 날짜/시간 선택 (글자 깨짐 0%) */}
               <div style={styles.assignCol}>
                 <h4 style={styles.sectionHeading}>⚙️ 상담사 매칭 & 일정 확정</h4>
 
-                {/* 상담사 선택 */}
                 <label style={styles.formFieldLabel}>
                   담당 상담사 배정 <span style={{ color: '#DC2626' }}>*</span>
                   <select
                     style={styles.modalSelect}
-                    value={assignData.counselorId}
-                    onChange={(e) => setAssignData(prev => ({ ...prev, counselorId: e.target.value }))}
+                    value={assignCounselorId}
+                    onChange={(e) => setAssignCounselorId(e.target.value)}
                   >
                     <option value="">상담사를 선택해 주세요</option>
                     {counselors.map(c => (
@@ -628,30 +638,78 @@ export default function AdminPage() {
                   </select>
                 </label>
 
-                {/* 확정 상담 일시 */}
-                <label style={styles.formFieldLabel}>
-                  확정 상담 일시 (캘린더 연동)
-                  <input
-                    type="datetime-local"
-                    style={styles.modalInput}
-                    value={assignData.confirmedDate}
-                    onChange={(e) => setAssignData(prev => ({ ...prev, confirmedDate: e.target.value }))}
-                  />
-                </label>
+                {/* 확정 상담 일시 (날짜 + 시간 분리 선택기) */}
+                <div style={styles.formFieldLabel}>
+                  <span>확정 상담 일시 (캘린더 연동) <span style={{ color: '#166534', fontWeight: 600 }}>[깨짐 없는 선택기]</span></span>
 
-                {/* 관리자 메모 */}
+                  {/* 희망일 바로 선택 버튼 */}
+                  <div style={styles.quickDateRow}>
+                    {selectedReq.preferred_date1 && (
+                      <button
+                        type="button"
+                        style={styles.quickDateBtn}
+                        onClick={() => setAssignDate(selectedReq.preferred_date1 || '')}
+                      >
+                        ⚡ 1지망({formatDate(selectedReq.preferred_date1)})
+                      </button>
+                    )}
+                    {selectedReq.preferred_date2 && (
+                      <button
+                        type="button"
+                        style={styles.quickDateBtn}
+                        onClick={() => setAssignDate(selectedReq.preferred_date2 || '')}
+                      >
+                        ⚡ 2지망({formatDate(selectedReq.preferred_date2)})
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 날짜 선택 + 시간 선택 2열 그리드 */}
+                  <div style={styles.dateTimeGrid}>
+                    <div>
+                      <span style={styles.subFieldLabel}>📅 상담 날짜</span>
+                      <input
+                        type="date"
+                        style={styles.modalInput}
+                        value={assignDate}
+                        onChange={(e) => setAssignDate(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <span style={styles.subFieldLabel}>⏰ 상담 시간</span>
+                      <select
+                        style={styles.modalSelect}
+                        value={assignTime}
+                        onChange={(e) => setAssignTime(e.target.value)}
+                      >
+                        {TIME_OPTIONS.map(t => (
+                          <option key={t.value} value={t.value}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {assignDate && (
+                    <p style={styles.selectedPreviewText}>
+                      선택된 상담 일시: <b>{assignDate} ({assignTime})</b>
+                    </p>
+                  )}
+                </div>
+
                 <label style={styles.formFieldLabel}>
                   상담 관리 메모
                   <textarea
                     rows={3}
                     placeholder="상담 준비사항, 청년과의 통화 내용, 상담 후기 등"
                     style={styles.modalTextarea}
-                    value={assignData.memo}
-                    onChange={(e) => setAssignData(prev => ({ ...prev, memo: e.target.value }))}
+                    value={assignMemo}
+                    onChange={(e) => setAssignMemo(e.target.value)}
                   />
                 </label>
 
-                {/* 액션 버튼 그룹 */}
                 <div style={styles.modalActionRow}>
                   <button
                     style={{ ...styles.actionBtnPrimary, background: '#166534', color: '#fff' }}
@@ -690,7 +748,7 @@ export default function AdminPage() {
   );
 }
 
-// ─── 디자인 시스템 스타일 (청춘스럽 딥블루 #1B2A80 테마) ───
+// ─── 스타일 상수 ───
 const THEME_BLUE = '#1B2A80';
 const styles: Record<string, React.CSSProperties> = {
   loginWrap: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EFF4FA' },
@@ -746,7 +804,6 @@ const styles: Record<string, React.CSSProperties> = {
   concernPreview: { fontSize: 12.5, color: '#64748B', fontStyle: 'italic', background: '#fff', padding: '6px 10px', borderRadius: 8, border: '1px solid #E2E8F0', marginTop: 4 },
   cardActionBtn: { marginTop: 'auto', padding: '9px', background: '#fff', border: `1.5px solid ${THEME_BLUE}`, borderRadius: 10, color: THEME_BLUE, fontSize: 13, fontWeight: 800, cursor: 'pointer', textAlign: 'center' },
 
-  // 캘린더 스타일
   calendarContainer: { background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' },
   calHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 },
   calNavBtn: { padding: '7px 14px', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 8, fontSize: 13, fontWeight: 700, color: '#334155', cursor: 'pointer' },
@@ -772,7 +829,6 @@ const styles: Record<string, React.CSSProperties> = {
   eventName: { fontSize: 12, fontWeight: 700, color: '#0F172A', marginTop: 1 },
   eventCounselor: { fontSize: 11, color: '#475569', marginTop: 1 },
 
-  // 모달 스타일
   modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 },
   modalContent: { background: '#fff', borderRadius: 24, width: '100%', maxWidth: 760, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 60px rgba(0,0,0,0.25)', padding: 28 },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid #F1F5F9', paddingBottom: 16, marginBottom: 20 },
@@ -790,9 +846,15 @@ const styles: Record<string, React.CSSProperties> = {
   concernBoxModal: { background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', marginTop: 14 },
 
   formFieldLabel: { display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13.5, fontWeight: 700, color: '#334155' },
-  modalSelect: { padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF' },
-  modalInput: { padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF' },
-  modalTextarea: { padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13.5, outline: 'none', resize: 'none', background: '#FAFCFF' },
+  subFieldLabel: { fontSize: 12, color: '#64748B', fontWeight: 700, marginBottom: 4, display: 'block' },
+  modalSelect: { width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF' },
+  modalInput: { width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF' },
+  modalTextarea: { width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13.5, outline: 'none', resize: 'none', background: '#FAFCFF' },
+
+  quickDateRow: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4 },
+  quickDateBtn: { padding: '4px 10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 12, color: THEME_BLUE, fontWeight: 700, cursor: 'pointer' },
+  dateTimeGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
+  selectedPreviewText: { fontSize: 12.5, color: '#166534', background: '#DCFCE7', padding: '6px 10px', borderRadius: 6, margin: 0 },
 
   modalActionRow: { display: 'grid', gridTemplateColumns: '1fr', gap: 8, marginTop: 8 },
   actionBtnPrimary: { padding: '12px', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', transition: 'opacity 0.15s' },
