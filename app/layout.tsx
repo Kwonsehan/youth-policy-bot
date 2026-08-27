@@ -5,6 +5,14 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://youth-policy-bot.vercel.app'),
   title: '청춘스럽 정책안내 AI봇 | 대전 청년정책 안내',
