@@ -490,14 +490,9 @@ export default function AdminPage() {
           .admin-cal-month-title {
             font-size: 15px !important;
           }
-          .admin-cal-scroll-wrapper {
-            width: 100% !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-            padding-bottom: 8px !important;
-          }
           .admin-cal-inner {
-            min-width: 700px !important;
+            width: 100% !important;
+            min-width: 0 !important;
           }
 
           /* 모달 팝업 모바일 최적화 */
@@ -682,10 +677,10 @@ export default function AdminPage() {
                     else { setCalMonth(m => m - 1); }
                   }}
                 >
-                  ◀ 이전달
+                  ◀
                 </button>
                 <h2 style={styles.calMonthTitle} className="admin-cal-month-title">
-                  {calYear}년 {calMonth + 1}월 상담 일정
+                  {calYear}년 {calMonth + 1}월
                 </h2>
                 <button
                   style={styles.calNavBtn}
@@ -694,7 +689,7 @@ export default function AdminPage() {
                     else { setCalMonth(m => m + 1); }
                   }}
                 >
-                  다음달 ▶
+                  ▶
                 </button>
                 <button
                   style={styles.calTodayBtn}
@@ -714,19 +709,15 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* 모바일 가로 스크롤 힌트 */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 4 }}>
-              <span style={{ fontSize: 11.5, color: '#64748B' }}>
-                💡 일정을 클릭하면 상담사 배정 및 상세 확인이 가능합니다.
-              </span>
-              <span style={{ fontSize: 11, color: '#1B2A80', background: '#EEF2FF', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
-                👉 좌우 스와이프 지원
+            {/* 💡 클릭 안내 */}
+            <div style={{ marginBottom: 6 }}>
+              <span style={{ fontSize: 11, color: '#64748B' }}>
+                💡 일정 클릭 시 상세 확인 및 수정 가능합니다.
               </span>
             </div>
 
-            {/* 캘린더 가로 스크롤 래퍼 (모바일에서도 찌그러짐 0%) */}
-            <div className="admin-cal-scroll-wrapper">
-              <div className="admin-cal-inner">
+            {/* 캘린더 그리드 (스크롤 없이 화면에 꽉 맞게) */}
+            <div className="admin-cal-inner">
                 {/* 요일 헤더 */}
                 <div style={styles.calWeekdays}>
                   {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
@@ -810,7 +801,6 @@ export default function AdminPage() {
                     );
                   })}
                 </div>
-              </div>
             </div>
           </div>
         )}
@@ -1079,9 +1069,9 @@ const styles: Record<string, React.CSSProperties> = {
 
   calendarContainer: { background: '#fff', borderRadius: 16, padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' },
   calHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 10 },
-  calNavBtn: { padding: '5px 12px', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, fontSize: 12.5, fontWeight: 700, color: '#334155', cursor: 'pointer' },
+  calNavBtn: { padding: '4px 8px', background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, fontSize: 11.5, fontWeight: 700, color: '#334155', cursor: 'pointer', whiteSpace: 'nowrap' as const },
   calTodayBtn: { padding: '5px 12px', background: THEME_BLUE, border: 'none', borderRadius: 6, fontSize: 12.5, fontWeight: 700, color: '#F5B800', cursor: 'pointer' },
-  calMonthTitle: { fontSize: 17, fontWeight: 900, color: THEME_BLUE },
+  calMonthTitle: { fontSize: 15, fontWeight: 900, color: THEME_BLUE },
   calLegend: { display: 'flex', gap: 10, fontSize: 12, fontWeight: 700, color: '#475569' },
   legendItem: { display: 'flex', alignItems: 'center', gap: 5 },
   legendDot: { width: 8, height: 8, borderRadius: '50%' },
@@ -1089,9 +1079,9 @@ const styles: Record<string, React.CSSProperties> = {
   calWeekdays: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', fontWeight: 800, fontSize: 12.5, padding: '6px 0', borderBottom: '1.5px solid #E2E8F0' },
   calWeekdayCol: { padding: 2 },
   calGrid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderLeft: '1px solid #E2E8F0', borderTop: '1px solid #E2E8F0' },
-  calCell: { minHeight: 68, borderRight: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: 4, background: '#fff', display: 'flex', flexDirection: 'column' },
+  calCell: { minHeight: 46, borderRight: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: 4, background: '#fff', display: 'flex', flexDirection: 'column' },
   calCellToday: { background: '#FFFDF5' },
-  calEmptyCell: { minHeight: 68, borderRight: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', background: '#F8FAFC' },
+  calEmptyCell: { minHeight: 46, borderRight: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', background: '#F8FAFC' },
   calDayNumRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 },
   calDayNum: { fontSize: 11.5, fontWeight: 800, color: '#334155', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' },
   calDayNumToday: { background: THEME_BLUE, color: '#F5B800' },
@@ -1099,7 +1089,7 @@ const styles: Record<string, React.CSSProperties> = {
   calEventList: { display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' },
   calEventCard: { padding: '2px 5px', borderRadius: 4, cursor: 'pointer', transition: 'transform 0.1s', display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden' },
   eventTimeChip: { fontSize: 10, fontWeight: 800, color: '#1E293B', flexShrink: 0 },
-  eventNameChip: { fontSize: 11, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  eventNameChip: { fontSize: 10, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' },
   eventCounselorChip: { fontSize: 10, color: '#475569', flexShrink: 0 },
 
   modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 14 },
