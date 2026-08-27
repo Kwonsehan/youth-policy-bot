@@ -218,7 +218,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                 상담 방식 <span className="required-mark">*</span>
               </p>
               <div className="method-row">
-                {['대면 (청춘스럽 방문)', '비대면 (전화 상담)'].map((m) => {
+                {['대면 (청춘스럽 방문)', '비대면 (zoom)'].map((m) => {
                   const val = m.startsWith('대면') ? '대면' : '비대면';
                   return (
                     <button
