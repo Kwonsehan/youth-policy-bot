@@ -2,6 +2,7 @@
 // ============================================================
 // app/admin/page.tsx
 // 청춘스럽 정책 상담 관리자 매칭 대시보드
+// - PC(노트북) 및 모바일(스마트폰) 100% 완벽 반응형 뷰 지원
 // - 브라우저 네모(ㅁ) 폰트 깨짐 100% 원천 차단
 // - [연도 / 월 / 일] + [시간] 완전 한글 드롭다운 + 퀵 선택 버튼 UI
 // ============================================================
@@ -109,7 +110,6 @@ function formatDateTime(dateStr?: string) {
   }
 }
 
-
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -199,23 +199,16 @@ export default function AdminPage() {
 
     // 기존 확정일이 있으면 해당 일시 세팅, 없으면 1지망 희망일 세팅
     if (req.confirmed_date) {
-      // ─ 안전한 날짜 파싱 ─
-      // DB에서 "2026-08-27T14:00:00+09:00" 형태로 오면 직접 split으로 파싱.
-      // new Date().getHours() 등 로컬 메서드 방식은 브라우저 환경에 따라 틀릴 수 있어 직접 파싱함.
-      const raw = req.confirmed_date; // 예: "2026-08-27T14:00:00+09:00" or "2026-08-27T05:00:00.000Z"
+      const raw = req.confirmed_date;
       try {
-        // T 앞 부분: 날짜, T 뒤 부분: 시간(+ 오프셋/Z 포함)
         const tIdx = raw.indexOf('T');
         if (tIdx > 0) {
-          const datePart = raw.slice(0, tIdx); // "2026-08-27"
-          const timePart = raw.slice(tIdx + 1); // "14:00:00+09:00" or "05:00:00.000Z"
+          const datePart = raw.slice(0, tIdx);
+          const timePart = raw.slice(tIdx + 1);
 
           const [yr, mo, dy] = datePart.split('-');
+          const hhMm = timePart.slice(0, 5);
 
-          // 시:분 추출 (오프셋, 밀리초 등 제거)
-          const hhMm = timePart.slice(0, 5); // "14:00"
-
-          // UTC(Z)인 경우 KST로 변환 (+9시간)
           if (raw.endsWith('Z') || raw.includes('+00:00')) {
             const d = new Date(raw);
             const kstHour = d.getUTCHours() + 9;
@@ -227,11 +220,9 @@ export default function AdminPage() {
             const h = kstHour % 24;
             setAssignTime(`${String(h).padStart(2, '0')}:${String(kstMin).padStart(2, '0')}`);
           } else {
-            // KST(+09:00) 또는 로컬 시간 문자열인 경우 그대로 세팅
             setAssignYear(yr);
             setAssignMonth(mo.padStart(2, '0'));
             setAssignDay(dy.padStart(2, '0'));
-            // "14:00"이 TIME_OPTIONS에 있는지 확인, 없으면 가장 가까운 값 선택
             const matchedTime = TIME_OPTIONS.find(t => t.value === hhMm);
             setAssignTime(matchedTime ? matchedTime.value : (TIME_OPTIONS[0]?.value ?? '14:00'));
           }
@@ -239,7 +230,6 @@ export default function AdminPage() {
           throw new Error('날짜 형식 오류');
         }
       } catch {
-        // 파싱 실패 시 현재 날짜/기본 시간으로
         const now = new Date();
         setAssignYear(String(now.getFullYear()));
         setAssignMonth(String(now.getMonth() + 1).padStart(2, '0'));
@@ -257,7 +247,6 @@ export default function AdminPage() {
       setAssignTime('14:00');
     }
   };
-
 
   const closeDetailModal = () => {
     setSelectedReq(null);
@@ -393,48 +382,188 @@ export default function AdminPage() {
   // ── 2. 메인 대시보드 ──
   return (
     <div style={styles.dashContainer}>
+      {/* ── 반응형 미디어 쿼리 주입 ── */}
+      <style>{`
+        /* ── 모바일 (화면 너비 768px 이하) 전용 스타일 ── */
+        @media (max-width: 768px) {
+          .admin-header {
+            padding: 12px 14px !important;
+            position: relative !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+          }
+          .admin-header-left {
+            gap: 8px !important;
+          }
+          .admin-header-title {
+            font-size: 16px !important;
+            line-height: 1.3 !important;
+          }
+          .admin-header-sub {
+            font-size: 11.5px !important;
+          }
+          .admin-header-right {
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+          }
+          .admin-view-toggle-group {
+            width: 100% !important;
+            display: flex !important;
+          }
+          .admin-view-toggle-btn {
+            flex: 1 !important;
+            padding: 8px 6px !important;
+            font-size: 12.5px !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+          }
+          .admin-header-btn-row {
+            width: 100% !important;
+            display: flex !important;
+            gap: 6px !important;
+          }
+          .admin-header-btn-row button {
+            flex: 1 !important;
+            padding: 8px 4px !important;
+            font-size: 12px !important;
+            text-align: center !important;
+          }
+
+          /* 통계 카드를 모바일에서 2x2 그리드로 대폭 축소 */
+          .admin-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+            padding: 10px 14px 0 !important;
+          }
+          .admin-stat-card {
+            padding: 8px 12px !important;
+            border-radius: 10px !important;
+          }
+          .admin-stat-label {
+            font-size: 11.5px !important;
+          }
+          .admin-stat-number {
+            font-size: 18px !important;
+          }
+
+          /* 메인 콘텐츠 영역 여백 축소 및 하단 스크롤 안전영역 확보 */
+          .admin-main-content {
+            padding: 10px 14px 100px !important;
+          }
+
+          /* 신청 목록 툴바 */
+          .admin-card-container {
+            padding: 12px !important;
+            border-radius: 12px !important;
+          }
+          .admin-toolbar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+          }
+          .admin-search-input {
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+          .admin-request-grid {
+            grid-template-columns: 1fr !important;
+          }
+
+          /* 캘린더 모바일 가로 스크롤 & 헤더 */
+          .admin-cal-container {
+            padding: 12px 8px !important;
+            border-radius: 12px !important;
+          }
+          .admin-cal-header {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 8px !important;
+          }
+          .admin-cal-nav-group {
+            width: 100% !important;
+            justify-content: space-between !important;
+          }
+          .admin-cal-month-title {
+            font-size: 15px !important;
+          }
+          .admin-cal-scroll-wrapper {
+            width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 8px !important;
+          }
+          .admin-cal-inner {
+            min-width: 540px !important;
+          }
+
+          /* 모달 팝업 모바일 최적화 */
+          .admin-modal-content {
+            padding: 14px !important;
+            max-height: 92vh !important;
+            border-radius: 16px !important;
+          }
+          .admin-modal-title {
+            font-size: 16px !important;
+          }
+          .admin-modal-body-grid {
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
+          }
+          .admin-info-col {
+            padding: 12px !important;
+          }
+        }
+      `}</style>
 
       {/* 헤더 */}
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
-          <span style={{ fontSize: 26 }}>🏛️</span>
+      <header style={styles.header} className="admin-header">
+        <div style={styles.headerLeft} className="admin-header-left">
+          <span style={{ fontSize: 24 }}>🏛️</span>
           <div>
-            <h1 style={styles.headerTitle}>청춘스럽 정책상담 매칭 관리 시스템</h1>
-            <p style={styles.headerSub}>총 {requests.length}건 접수 · 대전 서구 청년공간 청춘스럽</p>
+            <h1 style={styles.headerTitle} className="admin-header-title">청춘스럽 정책상담 매칭 관리</h1>
+            <p style={styles.headerSub} className="admin-header-sub">총 {requests.length}건 접수 · 대전 서구 청년공간 청춘스럽</p>
           </div>
         </div>
 
-        <div style={styles.headerRight}>
-          <div style={styles.viewToggleGroup}>
+        <div style={styles.headerRight} className="admin-header-right">
+          <div style={styles.viewToggleGroup} className="admin-view-toggle-group">
             <button
               style={{ ...styles.viewToggleBtn, ...(viewMode === 'list' ? styles.viewToggleBtnActive : {}) }}
+              className="admin-view-toggle-btn"
               onClick={() => setViewMode('list')}
             >
               📋 신청 목록 보기
             </button>
             <button
               style={{ ...styles.viewToggleBtn, ...(viewMode === 'calendar' ? styles.viewToggleBtnActive : {}) }}
+              className="admin-view-toggle-btn"
               onClick={() => setViewMode('calendar')}
             >
               📅 상담 일정 캘린더
             </button>
           </div>
 
-          <button style={styles.refreshBtn} onClick={handleRefresh} disabled={isLoading}>
-            {isLoading ? '로딩...' : '🔄 새로고침'}
-          </button>
+          <div className="admin-header-btn-row" style={{ display: 'flex', gap: 6 }}>
+            <button style={styles.refreshBtn} onClick={handleRefresh} disabled={isLoading}>
+              {isLoading ? '로딩...' : '🔄 새로고침'}
+            </button>
 
-          <button
-            style={styles.logoutBtn}
-            onClick={() => { setIsLoggedIn(false); setRequests([]); setPassword(''); }}
-          >
-            로그아웃
-          </button>
+            <button
+              style={styles.logoutBtn}
+              onClick={() => { setIsLoggedIn(false); setRequests([]); setPassword(''); }}
+            >
+              로그아웃
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* 통계 바 */}
-      <section style={styles.statsGrid}>
+      {/* 통계 바 (모바일에서 2x2 그리드로 컴팩트하게 표시) */}
+      <section style={styles.statsGrid} className="admin-stats-grid">
         {['접수대기', '매칭완료', '상담완료', '취소'].map((s) => {
           const cnt = requests.filter(r => r.status === s).length;
           const st = STATUS_STYLE[s];
@@ -442,22 +571,23 @@ export default function AdminPage() {
             <div
               key={s}
               style={{ ...styles.statCard, borderTop: `4px solid ${st.color}` }}
+              className="admin-stat-card"
               onClick={() => { setFilterStatus(s); setViewMode('list'); }}
             >
-              <span style={{ ...styles.statLabel, color: st.color }}>{st.label}</span>
-              <span style={styles.statNumber}>{cnt}<span style={{ fontSize: 14, fontWeight: 500, marginLeft: 2 }}>건</span></span>
+              <span style={{ ...styles.statLabel, color: st.color }} className="admin-stat-label">{st.label}</span>
+              <span style={styles.statNumber} className="admin-stat-number">{cnt}<span style={{ fontSize: 13, fontWeight: 500, marginLeft: 2 }}>건</span></span>
             </div>
           );
         })}
       </section>
 
       {/* 메인 컨텐츠 */}
-      <main style={styles.mainContent}>
+      <main style={styles.mainContent} className="admin-main-content">
 
         {/* 📋 신청 목록 뷰 */}
         {viewMode === 'list' && (
-          <div style={styles.cardContainer}>
-            <div style={styles.toolbar}>
+          <div style={styles.cardContainer} className="admin-card-container">
+            <div style={styles.toolbar} className="admin-toolbar">
               <div style={styles.filterButtonGroup}>
                 {['전체', '접수대기', '매칭완료', '상담완료', '취소'].map((s) => (
                   <button
@@ -474,6 +604,7 @@ export default function AdminPage() {
                 type="text"
                 placeholder="🔍 신청자 이름, 연락처, 분야 검색"
                 style={styles.searchInput}
+                className="admin-search-input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -485,7 +616,7 @@ export default function AdminPage() {
                 <p style={{ marginTop: 12, color: '#64748B', fontWeight: 600 }}>해당 조건의 신청 내역이 없습니다.</p>
               </div>
             ) : (
-              <div style={styles.requestGrid}>
+              <div style={styles.requestGrid} className="admin-request-grid">
                 {filteredRequests.map((r) => {
                   const st = STATUS_STYLE[r.status] || STATUS_STYLE['접수대기'];
                   const counselorName = counselors.find(c => c.id === r.counselor_id)?.name || '미배정';
@@ -540,9 +671,10 @@ export default function AdminPage() {
 
         {/* 📅 캘린더 뷰 */}
         {viewMode === 'calendar' && (
-          <div style={styles.calendarContainer}>
-            <div style={styles.calHeader}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={styles.calendarContainer} className="admin-cal-container">
+            {/* 캘린더 상단 헤더 */}
+            <div style={styles.calHeader} className="admin-cal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} className="admin-cal-nav-group">
                 <button
                   style={styles.calNavBtn}
                   onClick={() => {
@@ -552,7 +684,7 @@ export default function AdminPage() {
                 >
                   ◀ 이전달
                 </button>
-                <h2 style={styles.calMonthTitle}>
+                <h2 style={styles.calMonthTitle} className="admin-cal-month-title">
                   {calYear}년 {calMonth + 1}월 상담 일정
                 </h2>
                 <button
@@ -582,90 +714,103 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div style={styles.calWeekdays}>
-              {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
-                <div key={w} style={{ ...styles.calWeekdayCol, color: idx === 0 ? '#DC2626' : idx === 6 ? '#2563EB' : '#475569' }}>
-                  {w}
-                </div>
-              ))}
+            {/* 모바일 가로 스크롤 힌트 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 4 }}>
+              <span style={{ fontSize: 11.5, color: '#64748B' }}>
+                💡 일정을 클릭하면 상담사 배정 및 상세 확인이 가능합니다.
+              </span>
+              <span style={{ fontSize: 11, color: '#1B2A80', background: '#EEF2FF', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
+                👉 좌우 스와이프 지원
+              </span>
             </div>
 
-            <div style={styles.calGrid}>
-              {calendarDays.map((item, idx) => {
-                if (!item.dateStr || item.dayNum === null) {
-                  return <div key={`empty-${idx}`} style={styles.calEmptyCell} />;
-                }
-
-                const dayEvents = requests.filter(r => {
-                  if (!r.confirmed_date) return false;
-                  const raw = r.confirmed_date;
-                  // UTC(Z) 형식이면 KST로 변환해서 날짜 추출
-                  if (raw.endsWith('Z') || raw.includes('+00:00')) {
-                    const d = new Date(raw);
-                    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-                    const kstDate = `${kst.getUTCFullYear()}-${String(kst.getUTCMonth() + 1).padStart(2, '0')}-${String(kst.getUTCDate()).padStart(2, '0')}`;
-                    return kstDate === item.dateStr;
-                  }
-                  // KST(+09:00) 또는 로컬 시간 → 앞 10자리가 날짜
-                  return raw.slice(0, 10) === item.dateStr;
-                });
-
-                // 오늘 날짜도 KST 기준으로 비교
-                const nowKst = new Date(Date.now() + 9 * 60 * 60 * 1000);
-                const todayKst = `${nowKst.getUTCFullYear()}-${String(nowKst.getUTCMonth() + 1).padStart(2, '0')}-${String(nowKst.getUTCDate()).padStart(2, '0')}`;
-                const isToday = item.dateStr === todayKst;
-
-                return (
-                  <div key={item.dateStr} style={{ ...styles.calCell, ...(isToday ? styles.calCellToday : {}) }}>
-                    <div style={styles.calDayNumRow}>
-                      <span style={{ ...styles.calDayNum, ...(isToday ? styles.calDayNumToday : {}) }}>
-                        {item.dayNum}
-                      </span>
-                      {dayEvents.length > 0 && (
-                        <span style={styles.dayEventCount}>{dayEvents.length}건</span>
-                      )}
+            {/* 캘린더 가로 스크롤 래퍼 (모바일에서도 찌그러짐 0%) */}
+            <div className="admin-cal-scroll-wrapper">
+              <div className="admin-cal-inner">
+                {/* 요일 헤더 */}
+                <div style={styles.calWeekdays}>
+                  {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
+                    <div key={w} style={{ ...styles.calWeekdayCol, color: idx === 0 ? '#DC2626' : idx === 6 ? '#2563EB' : '#475569' }}>
+                      {w}
                     </div>
+                  ))}
+                </div>
 
-                    <div style={styles.calEventList}>
-                      {dayEvents.map(ev => {
-                        const counselor = counselors.find(c => c.id === ev.counselor_id);
-                        const timeStr = (() => {
-                          if (!ev.confirmed_date) return '';
-                          const raw = ev.confirmed_date;
-                          const tIdx = raw.indexOf('T');
-                          if (tIdx < 0) return '';
-                          const timePart = raw.slice(tIdx + 1);
-                          // UTC인 경우 +9시간 보정
-                          if (raw.endsWith('Z') || raw.includes('+00:00')) {
-                            const d = new Date(raw);
-                            const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-                            return `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}`;
-                          }
-                          return timePart.slice(0, 5); // "14:00"
-                        })();
-                        const isDone = ev.status === '상담완료';
+                {/* 날짜 그리드 */}
+                <div style={styles.calGrid}>
+                  {calendarDays.map((item, idx) => {
+                    if (!item.dateStr || item.dayNum === null) {
+                      return <div key={`empty-${idx}`} style={styles.calEmptyCell} />;
+                    }
 
-                        return (
-                          <div
-                            key={ev.id}
-                            style={{
-                              ...styles.calEventCard,
-                              background: isDone ? '#E0F2FE' : '#DCFCE7',
-                              borderLeft: `3px solid ${isDone ? '#0C4A6E' : '#166534'}`,
-                            }}
-                            onClick={() => openDetailModal(ev)}
-                            title={`${ev.name} | ${timeStr} | ${counselor?.name || '담당자'} | 클릭하여 수정`}
-                          >
-                            <span style={styles.eventTimeChip}>{timeStr}</span>
-                            <span style={styles.eventNameChip}>{ev.name}</span>
-                            <span style={styles.eventCounselorChip}>({counselor?.name || '상담사'})</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+                    const dayEvents = requests.filter(r => {
+                      if (!r.confirmed_date) return false;
+                      const raw = r.confirmed_date;
+                      if (raw.endsWith('Z') || raw.includes('+00:00')) {
+                        const d = new Date(raw);
+                        const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+                        const kstDate = `${kst.getUTCFullYear()}-${String(kst.getUTCMonth() + 1).padStart(2, '0')}-${String(kst.getUTCDate()).padStart(2, '0')}`;
+                        return kstDate === item.dateStr;
+                      }
+                      return raw.slice(0, 10) === item.dateStr;
+                    });
+
+                    const nowKst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+                    const todayKst = `${nowKst.getUTCFullYear()}-${String(nowKst.getUTCMonth() + 1).padStart(2, '0')}-${String(nowKst.getUTCDate()).padStart(2, '0')}`;
+                    const isToday = item.dateStr === todayKst;
+
+                    return (
+                      <div key={item.dateStr} style={{ ...styles.calCell, ...(isToday ? styles.calCellToday : {}) }}>
+                        <div style={styles.calDayNumRow}>
+                          <span style={{ ...styles.calDayNum, ...(isToday ? styles.calDayNumToday : {}) }}>
+                            {item.dayNum}
+                          </span>
+                          {dayEvents.length > 0 && (
+                            <span style={styles.dayEventCount}>${dayEvents.length}건</span>
+                          )}
+                        </div>
+
+                        <div style={styles.calEventList}>
+                          {dayEvents.map(ev => {
+                            const counselor = counselors.find(c => c.id === ev.counselor_id);
+                            const timeStr = (() => {
+                              if (!ev.confirmed_date) return '';
+                              const raw = ev.confirmed_date;
+                              const tIdx = raw.indexOf('T');
+                              if (tIdx < 0) return '';
+                              const timePart = raw.slice(tIdx + 1);
+                              if (raw.endsWith('Z') || raw.includes('+00:00')) {
+                                const d = new Date(raw);
+                                const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+                                return `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}`;
+                              }
+                              return timePart.slice(0, 5);
+                            })();
+                            const isDone = ev.status === '상담완료';
+
+                            return (
+                              <div
+                                key={ev.id}
+                                style={{
+                                  ...styles.calEventCard,
+                                  background: isDone ? '#E0F2FE' : '#DCFCE7',
+                                  borderLeft: `3px solid ${isDone ? '#0C4A6E' : '#166534'}`,
+                                }}
+                                onClick={() => openDetailModal(ev)}
+                                title={`${ev.name} | ${timeStr} | ${counselor?.name || '담당자'} | 클릭하여 수정`}
+                              >
+                                <span style={styles.eventTimeChip}>{timeStr}</span>
+                                <span style={styles.eventNameChip}>{ev.name}</span>
+                                <span style={styles.eventCounselorChip}>({counselor?.name || '상담사'})</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -678,18 +823,18 @@ export default function AdminPage() {
          ─────────────────────────────────────────────────── */}
       {selectedReq && (
         <div style={styles.modalOverlay} onClick={closeDetailModal}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div style={styles.modalContent} className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
 
             <div style={styles.modalHeader}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
                   <span style={{ ...styles.badge, ...STATUS_STYLE[selectedReq.status] }}>
                     {STATUS_STYLE[selectedReq.status]?.label || selectedReq.status}
                   </span>
                   <span style={styles.catBadge}>{selectedReq.category}</span>
-                  <span style={{ fontSize: 13, color: '#64748B' }}>접수일: {formatDate(selectedReq.created_at)}</span>
+                  <span style={{ fontSize: 12, color: '#64748B' }}>접수일: {formatDate(selectedReq.created_at)}</span>
                 </div>
-                <h2 style={styles.modalTitle}>{selectedReq.name} 청년 상담 신청서</h2>
+                <h2 style={styles.modalTitle} className="admin-modal-title">{selectedReq.name} 청년 상담 신청서</h2>
               </div>
               <button style={styles.modalCloseBtn} onClick={closeDetailModal}>✕</button>
             </div>
@@ -705,10 +850,10 @@ export default function AdminPage() {
               </div>
             )}
 
-            <div style={styles.modalBodyGrid}>
+            <div style={styles.modalBodyGrid} className="admin-modal-body-grid">
 
               {/* 신청자 정보 */}
-              <div style={styles.infoCol}>
+              <div style={styles.infoCol} className="admin-info-col">
                 <h4 style={styles.sectionHeading}>👤 신청자 정보</h4>
                 <div style={styles.infoTable}>
                   <div style={styles.infoTableRow}><span style={styles.infoLabel}>이름</span><b>{selectedReq.name}</b></div>
@@ -721,8 +866,8 @@ export default function AdminPage() {
 
                 {selectedReq.concern && (
                   <div style={styles.concernBoxModal}>
-                    <p style={{ fontSize: 12.5, fontWeight: 700, color: '#475569', marginBottom: 4 }}>💬 청년의 고민 내용</p>
-                    <p style={{ fontSize: 13.5, color: '#1E293B', lineHeight: 1.6 }}>{selectedReq.concern}</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>💬 청년의 고민 내용</p>
+                    <p style={{ fontSize: 13, color: '#1E293B', lineHeight: 1.5 }}>{selectedReq.concern}</p>
                   </div>
                 )}
               </div>
@@ -749,7 +894,7 @@ export default function AdminPage() {
 
                 {/* 확정 상담 일시 (연/월/일 한글 드롭다운 + 퀵 선택 버튼) */}
                 <div style={styles.formFieldLabel}>
-                  <span>확정 상담 일시 <span style={{ color: '#166534', fontWeight: 700 }}>[캘린더 자동 연동]</span></span>
+                  <span>확정 상담 일시 <span style={{ color: '#166534', fontWeight: 700 }}>[캘린더 연동]</span></span>
 
                   {/* 퀵 선택 버튼 */}
                   <div style={styles.quickDateRow}>
@@ -774,7 +919,7 @@ export default function AdminPage() {
                   </div>
 
                   {/* ── 100% 한글 [연도 / 월 / 일] 드롭다운 ── */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 6, marginTop: 4 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr 1fr', gap: 6, marginTop: 4 }}>
                     <select
                       style={styles.dateDropdown}
                       value={assignYear}
@@ -879,8 +1024,8 @@ export default function AdminPage() {
 // ─── 스타일 상수 ───
 const THEME_BLUE = '#1B2A80';
 const styles: Record<string, React.CSSProperties> = {
-  loginWrap: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EFF4FA' },
-  loginBox: { background: '#fff', borderRadius: 24, padding: '48px 36px', width: 380, boxShadow: '0 20px 40px rgba(27,42,128,0.12)', textAlign: 'center' },
+  loginWrap: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EFF4FA', padding: 16 },
+  loginBox: { background: '#fff', borderRadius: 24, padding: '40px 28px', width: '100%', maxWidth: 380, boxShadow: '0 20px 40px rgba(27,42,128,0.12)', textAlign: 'center' },
   loginTitle: { fontSize: 22, fontWeight: 800, color: THEME_BLUE, lineHeight: 1.35, marginBottom: 8 },
   loginDesc: { fontSize: 14, color: '#64748B', marginBottom: 24 },
   loginInput: { width: '100%', padding: '12px 16px', border: '1.5px solid #CBD5E1', borderRadius: 12, fontSize: 15, outline: 'none', marginBottom: 12 },
@@ -906,7 +1051,7 @@ const styles: Record<string, React.CSSProperties> = {
   statLabel: { fontSize: 12.5, fontWeight: 800 },
   statNumber: { fontSize: 20, fontWeight: 900, color: THEME_BLUE },
 
-  mainContent: { padding: '12px 24px 30px' },
+  mainContent: { padding: '12px 24px 60px' },
 
   cardContainer: { background: '#fff', borderRadius: 16, padding: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' },
   toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 },
@@ -957,33 +1102,33 @@ const styles: Record<string, React.CSSProperties> = {
   eventNameChip: { fontSize: 11, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   eventCounselorChip: { fontSize: 10, color: '#475569', flexShrink: 0 },
 
-  modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 },
+  modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 14 },
   modalContent: { background: '#fff', borderRadius: 20, width: '100%', maxWidth: 740, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 60px rgba(0,0,0,0.25)', padding: 24 },
-  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid #F1F5F9', paddingBottom: 16, marginBottom: 20 },
-  modalTitle: { fontSize: 20, fontWeight: 900, color: THEME_BLUE },
+  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid #F1F5F9', paddingBottom: 14, marginBottom: 16 },
+  modalTitle: { fontSize: 19, fontWeight: 900, color: THEME_BLUE },
   modalCloseBtn: { background: '#F1F5F9', border: 'none', width: 32, height: 32, borderRadius: '50%', fontSize: 16, color: '#64748B', cursor: 'pointer', fontWeight: 800 },
-  feedbackAlert: { padding: '10px 16px', borderRadius: 10, fontSize: 13.5, fontWeight: 700, border: '1px solid', marginBottom: 16 },
+  feedbackAlert: { padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 700, border: '1px solid', marginBottom: 14 },
 
-  modalBodyGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 },
-  infoCol: { background: '#F8FAFC', padding: 18, borderRadius: 16, border: '1px solid #E2E8F0' },
-  assignCol: { display: 'flex', flexDirection: 'column', gap: 14 },
-  sectionHeading: { fontSize: 15, fontWeight: 800, color: THEME_BLUE, marginBottom: 12 },
-  infoTable: { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13.5 },
-  infoTableRow: { display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #E2E8F0', paddingBottom: 6 },
+  modalBodyGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 },
+  infoCol: { background: '#F8FAFC', padding: 16, borderRadius: 14, border: '1px solid #E2E8F0' },
+  assignCol: { display: 'flex', flexDirection: 'column', gap: 12 },
+  sectionHeading: { fontSize: 14.5, fontWeight: 800, color: THEME_BLUE, marginBottom: 10 },
+  infoTable: { display: 'flex', flexDirection: 'column', gap: 7, fontSize: 13 },
+  infoTableRow: { display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #E2E8F0', paddingBottom: 5 },
   infoLabel: { color: '#64748B', fontWeight: 600 },
-  concernBoxModal: { background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '12px 14px', marginTop: 14 },
+  concernBoxModal: { background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', marginTop: 12 },
 
-  formFieldLabel: { display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13.5, fontWeight: 700, color: '#334155' },
-  subFieldLabel: { fontSize: 12, color: '#64748B', fontWeight: 700, marginBottom: 4, display: 'block' },
-  modalSelect: { width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF' },
-  dateDropdown: { width: '100%', padding: '10px 8px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF', fontWeight: 600, color: '#1E293B' },
-  modalInput: { width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 14, outline: 'none', background: '#FAFCFF' },
-  modalTextarea: { width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13.5, outline: 'none', resize: 'none', background: '#FAFCFF' },
+  formFieldLabel: { display: 'flex', flexDirection: 'column', gap: 5, fontSize: 13, fontWeight: 700, color: '#334155' },
+  subFieldLabel: { fontSize: 11.5, color: '#64748B', fontWeight: 700, marginBottom: 3, display: 'block' },
+  modalSelect: { width: '100%', padding: '9px 12px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13.5, outline: 'none', background: '#FAFCFF' },
+  dateDropdown: { width: '100%', padding: '9px 6px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13.5, outline: 'none', background: '#FAFCFF', fontWeight: 600, color: '#1E293B' },
+  modalInput: { width: '100%', padding: '9px 12px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13.5, outline: 'none', background: '#FAFCFF' },
+  modalTextarea: { width: '100%', padding: '9px 12px', border: '1.5px solid #CBD5E1', borderRadius: 10, fontSize: 13, outline: 'none', resize: 'none', background: '#FAFCFF' },
 
-  quickDateRow: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4 },
-  quickDateBtn: { padding: '4px 10px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 12, color: THEME_BLUE, fontWeight: 700, cursor: 'pointer' },
-  selectedPreviewText: { fontSize: 12.5, color: '#166534', background: '#DCFCE7', padding: '8px 12px', borderRadius: 8, marginTop: 8, border: '1px solid #86EFAC' },
+  quickDateRow: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 4 },
+  quickDateBtn: { padding: '4px 8px', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 6, fontSize: 11.5, color: THEME_BLUE, fontWeight: 700, cursor: 'pointer' },
+  selectedPreviewText: { fontSize: 12, color: '#166534', background: '#DCFCE7', padding: '7px 10px', borderRadius: 8, marginTop: 6, border: '1px solid #86EFAC' },
 
-  modalActionRow: { display: 'grid', gridTemplateColumns: '1fr', gap: 8, marginTop: 8 },
-  actionBtnPrimary: { padding: '12px', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', transition: 'opacity 0.15s' },
+  modalActionRow: { display: 'grid', gridTemplateColumns: '1fr', gap: 7, marginTop: 6 },
+  actionBtnPrimary: { padding: '11px', border: 'none', borderRadius: 10, fontSize: 13.5, fontWeight: 800, cursor: 'pointer', transition: 'opacity 0.15s' },
 };
