@@ -1,19 +1,17 @@
 'use client';
 // ============================================
 // components/ChatWindow.tsx
-// 대전서구 청년공간 '청춘스럽 정책안내 AI봇' 100% 전용 컴포넌트
-// 브랜드: 딥블루 #1B2A80 | 로고: 청춘's love 공식 실물 로고
-// 탭 순서: 💼 일자리·취업 (첫번째 고정)
+// 도와줘룸즈 AI챗봇 '루미' 주거특화 메인 채팅창 컴포넌트
+// - 질문 클릭/전송 시 추천 질문 탭 자동 접힘 기능 적용!
 // ============================================
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import MessageBubble, { Message } from './MessageBubble';
-import ConsultationModal from './ConsultationModal';
+import PolicyFilter, { UserSituationFilter } from './PolicyFilter';
 import { Policy } from '@/lib/supabase';
 
-// 청춘스럽 전용 카테고리 탭 타입 (💼 일자리 첫번째 고정)
-export type CategoryTab = '일자리' | '주거금융' | '창업복지' | '청년공간';
+export type CategoryTab = '주거금융' | '일자리' | '창업복지' | '청년공간';
 
 export interface CategoryTabInfo {
   id: CategoryTab;
@@ -22,15 +20,23 @@ export interface CategoryTabInfo {
   icon: string;
 }
 
-// 탭 순서: 💼 일자리·취업 → 🏠 주거·금융 → 🚀 창업·복지 → 🏛️ 대전 청년공간
 export const CATEGORY_TABS: CategoryTabInfo[] = [
-  { id: '일자리', label: '일자리·취업', shortLabel: '일자리·취업', icon: '💼' },
   { id: '주거금융', label: '주거·금융', shortLabel: '주거·금융', icon: '🏠' },
+  { id: '일자리', label: '일자리·취업', shortLabel: '일자리·취업', icon: '💼' },
   { id: '창업복지', label: '창업·복지', shortLabel: '창업·복지', icon: '🚀' },
   { id: '청년공간', label: '대전 청년공간', shortLabel: '청년공간', icon: '🏛️' },
 ];
 
 export const CATEGORY_QUESTION_POOLS: Record<CategoryTab, string[]> = {
+  '주거금융': [
+    '대전 청년 월세 지원 금액이랑 기간 알려줘',
+    '대전 청년 주택 임차보증금 이자 지원 조건',
+    '미래두배 청년통장 자격 조건이 뭐야?',
+    '청년미래적금 가입 조건 및 혜택 알려줘',
+    '대전 청년 전세보증금 반환보증 보증료 지원',
+    '대전 무주택 청년 주거 정책 추천해줘',
+    '대전 청년부부 결혼 장려금(최대 500만원) 신청 자격',
+  ],
   '일자리': [
     '취업관련 홈페이지 알려줘',
     '대전 청년 취업 지원 프로그램 알려줘',
@@ -40,15 +46,6 @@ export const CATEGORY_QUESTION_POOLS: Record<CategoryTab, string[]> = {
     '청년인재DB 등록하고 공공기관 인턴하는 법',
     '국민취업지원제도 구직촉진수당 자격 조건',
     '대전일자리정보망(대전청년인턴) 홈페이지 알려줘',
-  ],
-  '주거금융': [
-    '대전 청년 월세 지원 금액이랑 기간 알려줘',
-    '대전 청년 주택 임차보증금 이자 지원 조건',
-    '미래두배 청년통장 자격 조건이 뭐야?',
-    '청년미래적금 가입 조건 및 혜택 알려줘',
-    '대전 청년 전세보증금 반환보증 보증료 지원',
-    '대전 무주택 청년 주거 정책 추천해줘',
-    '대전 청년부부 결혼 장려금(최대 500만원) 신청 자격',
   ],
   '창업복지': [
     '대전창업온라인 홈페이지 알려줘',
@@ -68,32 +65,42 @@ export const CATEGORY_QUESTION_POOLS: Record<CategoryTab, string[]> = {
   ],
 };
 
-// 현재 탭에서 무작위 3개 질문 추출
 function getRandomThreeForCategory(cat: CategoryTab): string[] {
   const pool = CATEGORY_QUESTION_POOLS[cat];
   const shuffled = [...pool].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, Math.min(3, pool.length));
 }
 
+const initialFilter: UserSituationFilter = {
+  region: '선택하세요.',
+  maritalStatus: '선택하세요.',
+  age: '',
+  incomeMin: '',
+  incomeMax: '',
+  education: '제한없음',
+  major: '제한없음',
+  employmentStatus: '제한없음',
+  specialty: '제한없음',
+  category: '전체',
+};
+
 export default function ChatWindow() {
-  // 청춘스럽 정책안내 AI봇 전용 첫 인사말
   const [messages, setMessages] = useState<Message[]>([
     {
       id: uuidv4(),
       role: 'assistant',
-      content: `안녕하세요! 👋\n**청춘스럽 정책안내 AI봇**입니다.\n\n대전 청년들을 위해 일자리, 주거, 교육, 창업, 복지, 금융 정책 정보와 대전 10개 청년공간 소식을 정확하고 친절하게 안내해 드려요.\n\n하단 분야별 탭을 클릭하여 궁금한 내용을 바로 물어보세요. 😊`,
+      content: `안녕하세요! 🏠\n**도와줘룸즈 AI챗봇 '루미'**입니다.\n\n청년들을 위해 주거, 일자리, 금융, 복지, 창업 정책 정보와 대전 10개 청년공간 소식을 정확하고 친절하게 안내해 드려요.\n\n하단 분야별 탭을 클릭하여 궁금한 내용을 바로 물어보세요. 😊`,
     },
   ]);
 
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // 기본 활성 탭: 💼 일자리·취업 (첫번째 고정)
-  const [activeCategoryTab, setActiveCategoryTab] = useState<CategoryTab>('일자리');
+  const [filter, setFilter] = useState<UserSituationFilter>(initialFilter);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeCategoryTab, setActiveCategoryTab] = useState<CategoryTab>('주거금융');
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(true);
   const [sessionId] = useState(() => uuidv4());
-  // 정책 상담 신청 모달 오픈 상태
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setSuggestedQuestions(getRandomThreeForCategory(activeCategoryTab));
@@ -113,7 +120,7 @@ export default function ChatWindow() {
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
-    // 질문 클릭/전송 시 추천 질문 탭 자동 접힘
+    // 질문 전송 시 추천 질문 탭 자동 접힘!
     setIsSuggestionsOpen(false);
 
     const userMessage: Message = {
@@ -145,7 +152,7 @@ export default function ChatWindow() {
             { role: 'user', content: text.trim() },
           ],
           sessionId,
-          filter: {},
+          filter,
         }),
       });
 
@@ -154,6 +161,7 @@ export default function ChatWindow() {
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let relatedPolicies: Policy[] = [];
+      let isCustomFiltered = false;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -168,8 +176,10 @@ export default function ChatWindow() {
 
           try {
             const parsed = JSON.parse(data);
+
             if (parsed.type === 'policies') {
               relatedPolicies = parsed.policies;
+              isCustomFiltered = Boolean(parsed.isCustomFiltered);
             } else if (parsed.type === 'text') {
               setMessages(prev =>
                 prev.map(m =>
@@ -188,15 +198,24 @@ export default function ChatWindow() {
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantId
-            ? { ...m, isStreaming: false, policies: relatedPolicies }
+            ? {
+                ...m,
+                isStreaming: false,
+                policies: relatedPolicies,
+                isCustomFiltered: isCustomFiltered,
+              }
             : m
         )
       );
-    } catch {
+    } catch (error) {
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantId
-            ? { ...m, content: '죄송합니다. 일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요. 🙏', isStreaming: false }
+            ? {
+                ...m,
+                content: '죄송합니다. 일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요. 🙏',
+                isStreaming: false,
+              }
             : m
         )
       );
@@ -204,7 +223,7 @@ export default function ChatWindow() {
       setIsLoading(false);
       inputRef.current?.focus();
     }
-  }, [messages, sessionId, isLoading]);
+  }, [messages, sessionId, filter, isLoading]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -221,39 +240,34 @@ export default function ChatWindow() {
 
   return (
     <div className="chat-container">
-
-      {/* ========== 헤더: 청춘스럽 딥블루 #1B2A80 브랜드 고정 ========== */}
+      {/* ========== 헤더 ========== */}
       <header className="chat-header">
         <div className="header-left">
           <div className="header-title-group">
-            {/* 청춘's love 공식 실물 로고 */}
             <div className="header-logo-container">
               <img
-                src="/logo.png?v=3000"
-                alt="대전서구 청년공간 청춘스럽 로고"
+                src="/logo.png"
+                alt="도와줘룸즈 루미 캐릭터 로고"
                 className="header-logo-img"
               />
             </div>
             <h1 className="header-main-text">
-              <span>청춘스럽 정책안내 AI봇</span>
+              <span>도와줘룸즈 AI챗봇 '루미'</span>
             </h1>
           </div>
         </div>
-        {/* 정책 상담 신청 버튼 → 클릭 시 모달 오픈 */}
-        <button
-          className="filter-toggle"
-          onClick={() => setIsModalOpen(true)}
+        {/* 신청하기 버튼을 오른쪽 끝으로 이동 */}
+        <a
+          href="https://helproomz.imweb.me/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="apply-cta-btn"
         >
-          <span className="btn-full-text">📋 정책 상담 신청</span>
-          <span className="btn-short-text">📋 상담 신청</span>
-        </button>
+          <span className="apply-btn-full">🏠 도와줘룸즈 신청하기</span>
+          <span className="apply-btn-short">🏠 방구하기 신청</span>
+        </a>
       </header>
 
-      {/* 정책 상담 신청 모달 */}
-      <ConsultationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
 
       {/* ========== 메시지 대화 영역 ========== */}
       <main className="messages-area">
@@ -263,7 +277,7 @@ export default function ChatWindow() {
         <div ref={bottomRef} />
       </main>
 
-      {/* ========== 추천 질문 탭 (질문 클릭 시 자동 접힘) ========== */}
+      {/* ========== 분야별 2단계 추천 질문 탭 (질문 클릭 시 자동 접힘) ========== */}
       <div className="suggestions">
         <div className="suggestions-header">
           <button
@@ -289,7 +303,6 @@ export default function ChatWindow() {
 
         {isSuggestionsOpen && (
           <div className="suggestions-content">
-            {/* 탭 순서: 💼 일자리·취업 → 🏠 주거·금융 → 🚀 창업·복지 → 🏛️ 대전 청년공간 */}
             <div className="category-tab-bar">
               {CATEGORY_TABS.map(tab => (
                 <button
@@ -320,7 +333,7 @@ export default function ChatWindow() {
         )}
       </div>
 
-      {/* ========== 입력창 ========== */}
+      {/* ========== 입력창 영역 ========== */}
       <footer className="input-area">
         <div className="input-wrapper">
           <textarea
@@ -328,7 +341,7 @@ export default function ChatWindow() {
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="청년정책에 대해 무엇이든 물어보세요 :)"
+            placeholder="주거정책 및 청년정책에 대해 무엇이든 물어보세요 :)"
             className="input-textarea"
             rows={1}
             disabled={isLoading}
@@ -340,7 +353,9 @@ export default function ChatWindow() {
           >
             {isLoading ? (
               <span className="loading-dots">
-                <span /><span /><span />
+                <span />
+                <span />
+                <span />
               </span>
             ) : (
               '↑'
@@ -349,7 +364,6 @@ export default function ChatWindow() {
         </div>
         <p className="input-hint">AI 답변은 참고용이며, 정확한 정보는 해당 기관에 확인하세요</p>
       </footer>
-
     </div>
   );
 }
