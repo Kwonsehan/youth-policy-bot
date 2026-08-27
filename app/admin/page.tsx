@@ -497,7 +497,7 @@ export default function AdminPage() {
             padding-bottom: 8px !important;
           }
           .admin-cal-inner {
-            min-width: 540px !important;
+            min-width: 700px !important;
           }
 
           /* 모달 팝업 모바일 최적화 */
@@ -1032,7 +1032,7 @@ const styles: Record<string, React.CSSProperties> = {
   loginError: { color: '#DC2626', fontSize: 13.5, marginBottom: 12, fontWeight: 600 },
   loginBtn: { width: '100%', padding: '14px', background: THEME_BLUE, color: '#F5B800', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer' },
 
-  dashContainer: { minHeight: '100vh', background: '#F8FAFC', color: '#0F172A' },
+  dashContainer: { minHeight: '100vh', background: '#F8FAFC', color: '#0F172A', overflowY: 'auto' as const, overflowX: 'hidden' as const },
   header: { background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, position: 'sticky', top: 0, zIndex: 50 },
   headerLeft: { display: 'flex', alignItems: 'center', gap: 14 },
   headerTitle: { fontSize: 19, fontWeight: 800, color: THEME_BLUE },
