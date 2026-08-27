@@ -79,12 +79,36 @@ function formatDate(dateStr?: string) {
 
 function formatDateTime(dateStr?: string) {
   if (!dateStr) return '-';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  const hours = String(d.getHours()).padStart(2, '0');
-  const mins = String(d.getMinutes()).padStart(2, '0');
-  return `${formatDate(dateStr)} ${hours}:${mins}`;
+  try {
+    const tIdx = dateStr.indexOf('T');
+    if (tIdx < 0) return formatDate(dateStr);
+
+    const datePart = dateStr.slice(0, tIdx); // "2026-08-27"
+    const timePart = dateStr.slice(tIdx + 1); // "14:00:00+09:00" 또는 "05:00:00.000Z"
+    const hhMm = timePart.slice(0, 5);        // "14:00"
+
+    // UTC(Z) 형식이면 +9시간 보정
+    if (dateStr.endsWith('Z') || dateStr.includes('+00:00')) {
+      const d = new Date(dateStr);
+      const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+      const [yr, mo, dy] = [
+        String(kst.getUTCFullYear()),
+        String(kst.getUTCMonth() + 1).padStart(2, '0'),
+        String(kst.getUTCDate()).padStart(2, '0'),
+      ];
+      const h = String(kst.getUTCHours()).padStart(2, '0');
+      const m = String(kst.getUTCMinutes()).padStart(2, '0');
+      return `${yr}.${mo}.${dy} ${h}:${m}`;
+    }
+
+    // KST(+09:00) 또는 로컬 시간은 그대로 파싱
+    const [yr, mo, dy] = datePart.split('-');
+    return `${yr}.${mo}.${dy} ${hhMm}`;
+  } catch {
+    return dateStr;
+  }
 }
+
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
@@ -175,14 +199,52 @@ export default function AdminPage() {
 
     // 기존 확정일이 있으면 해당 일시 세팅, 없으면 1지망 희망일 세팅
     if (req.confirmed_date) {
-      const d = new Date(req.confirmed_date);
-      if (!isNaN(d.getTime())) {
-        setAssignYear(String(d.getFullYear()));
-        setAssignMonth(String(d.getMonth() + 1).padStart(2, '0'));
-        setAssignDay(String(d.getDate()).padStart(2, '0'));
-        const h = String(d.getHours()).padStart(2, '0');
-        const min = String(d.getMinutes()).padStart(2, '0');
-        setAssignTime(`${h}:${min}`);
+      // ─ 안전한 날짜 파싱 ─
+      // DB에서 "2026-08-27T14:00:00+09:00" 형태로 오면 직접 split으로 파싱.
+      // new Date().getHours() 등 로컬 메서드 방식은 브라우저 환경에 따라 틀릴 수 있어 직접 파싱함.
+      const raw = req.confirmed_date; // 예: "2026-08-27T14:00:00+09:00" or "2026-08-27T05:00:00.000Z"
+      try {
+        // T 앞 부분: 날짜, T 뒤 부분: 시간(+ 오프셋/Z 포함)
+        const tIdx = raw.indexOf('T');
+        if (tIdx > 0) {
+          const datePart = raw.slice(0, tIdx); // "2026-08-27"
+          const timePart = raw.slice(tIdx + 1); // "14:00:00+09:00" or "05:00:00.000Z"
+
+          const [yr, mo, dy] = datePart.split('-');
+
+          // 시:분 추출 (오프셋, 밀리초 등 제거)
+          const hhMm = timePart.slice(0, 5); // "14:00"
+
+          // UTC(Z)인 경우 KST로 변환 (+9시간)
+          if (raw.endsWith('Z') || raw.includes('+00:00')) {
+            const d = new Date(raw);
+            const kstHour = d.getUTCHours() + 9;
+            const kstMin = d.getUTCMinutes();
+            const kstDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+            setAssignYear(String(kstDate.getUTCFullYear()));
+            setAssignMonth(String(kstDate.getUTCMonth() + 1).padStart(2, '0'));
+            setAssignDay(String(kstDate.getUTCDate()).padStart(2, '0'));
+            const h = kstHour % 24;
+            setAssignTime(`${String(h).padStart(2, '0')}:${String(kstMin).padStart(2, '0')}`);
+          } else {
+            // KST(+09:00) 또는 로컬 시간 문자열인 경우 그대로 세팅
+            setAssignYear(yr);
+            setAssignMonth(mo.padStart(2, '0'));
+            setAssignDay(dy.padStart(2, '0'));
+            // "14:00"이 TIME_OPTIONS에 있는지 확인, 없으면 가장 가까운 값 선택
+            const matchedTime = TIME_OPTIONS.find(t => t.value === hhMm);
+            setAssignTime(matchedTime ? matchedTime.value : (TIME_OPTIONS[0]?.value ?? '14:00'));
+          }
+        } else {
+          throw new Error('날짜 형식 오류');
+        }
+      } catch {
+        // 파싱 실패 시 현재 날짜/기본 시간으로
+        const now = new Date();
+        setAssignYear(String(now.getFullYear()));
+        setAssignMonth(String(now.getMonth() + 1).padStart(2, '0'));
+        setAssignDay(String(now.getDate()).padStart(2, '0'));
+        setAssignTime('14:00');
       }
     } else if (req.preferred_date1) {
       setDropdownDate(req.preferred_date1);
@@ -195,6 +257,7 @@ export default function AdminPage() {
       setAssignTime('14:00');
     }
   };
+
 
   const closeDetailModal = () => {
     setSelectedReq(null);
@@ -535,10 +598,22 @@ export default function AdminPage() {
 
                 const dayEvents = requests.filter(r => {
                   if (!r.confirmed_date) return false;
-                  return r.confirmed_date.startsWith(item.dateStr!);
+                  const raw = r.confirmed_date;
+                  // UTC(Z) 형식이면 KST로 변환해서 날짜 추출
+                  if (raw.endsWith('Z') || raw.includes('+00:00')) {
+                    const d = new Date(raw);
+                    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+                    const kstDate = `${kst.getUTCFullYear()}-${String(kst.getUTCMonth() + 1).padStart(2, '0')}-${String(kst.getUTCDate()).padStart(2, '0')}`;
+                    return kstDate === item.dateStr;
+                  }
+                  // KST(+09:00) 또는 로컬 시간 → 앞 10자리가 날짜
+                  return raw.slice(0, 10) === item.dateStr;
                 });
 
-                const isToday = item.dateStr === new Date().toISOString().split('T')[0];
+                // 오늘 날짜도 KST 기준으로 비교
+                const nowKst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+                const todayKst = `${nowKst.getUTCFullYear()}-${String(nowKst.getUTCMonth() + 1).padStart(2, '0')}-${String(nowKst.getUTCDate()).padStart(2, '0')}`;
+                const isToday = item.dateStr === todayKst;
 
                 return (
                   <div key={item.dateStr} style={{ ...styles.calCell, ...(isToday ? styles.calCellToday : {}) }}>
@@ -554,7 +629,20 @@ export default function AdminPage() {
                     <div style={styles.calEventList}>
                       {dayEvents.map(ev => {
                         const counselor = counselors.find(c => c.id === ev.counselor_id);
-                        const timeStr = ev.confirmed_date ? new Date(ev.confirmed_date).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+                        const timeStr = (() => {
+                          if (!ev.confirmed_date) return '';
+                          const raw = ev.confirmed_date;
+                          const tIdx = raw.indexOf('T');
+                          if (tIdx < 0) return '';
+                          const timePart = raw.slice(tIdx + 1);
+                          // UTC인 경우 +9시간 보정
+                          if (raw.endsWith('Z') || raw.includes('+00:00')) {
+                            const d = new Date(raw);
+                            const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+                            return `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}`;
+                          }
+                          return timePart.slice(0, 5); // "14:00"
+                        })();
                         const isDone = ev.status === '상담완료';
 
                         return (

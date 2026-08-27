@@ -115,12 +115,25 @@ export async function PATCH(req: Request) {
       return Response.json({ error: '신청 ID가 누락되었습니다.' }, { status: 400 });
     }
 
-    // 날짜 포맷 안전 변환 (ISO string 변환 또는 null)
+    // ─── 날짜 안전 변환: 한국시간(KST) 기준 유지 ───
+    // 프론트에서 "YYYY-MM-DDTHH:mm:00" 형태로 넘어오는 로컬 시간 문자열을
+    // new Date() + toISOString()으로 변환하면 UTC 기준으로 -9시간 되어 저장됨.
+    // 따라서 KST 오프셋(+09:00)을 직접 붙여서 저장하면 시간이 정확하게 유지됨.
     let safeConfirmedDate: string | null = null;
     if (confirmed_date && typeof confirmed_date === 'string' && confirmed_date.trim() !== '') {
-      const parsed = new Date(confirmed_date);
-      if (!isNaN(parsed.getTime())) {
-        safeConfirmedDate = parsed.toISOString();
+      // "YYYY-MM-DDTHH:mm:00" 형태면 +09:00 오프셋을 붙여서 저장
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(confirmed_date.trim())) {
+        // 초(秒) 부분이 없으면 :00 추가
+        const base = confirmed_date.trim().length === 16
+          ? confirmed_date.trim() + ':00'
+          : confirmed_date.trim();
+        safeConfirmedDate = `${base}+09:00`; // KST 명시
+      } else {
+        // 이미 timezone이 포함된 ISO 형식이면 그대로 파싱
+        const parsed = new Date(confirmed_date);
+        if (!isNaN(parsed.getTime())) {
+          safeConfirmedDate = parsed.toISOString();
+        }
       }
     }
 
