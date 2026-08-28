@@ -261,8 +261,7 @@ export default function ChatWindow() {
           href="/?consultation=open"
           className="apply-cta-btn"
         >
-          <span className="apply-btn-full">📋 정책상담신청</span>
-          <span className="apply-btn-short">📋 상담신청</span>
+          <span>📋 정책상담신청</span>
         </a>
       </header>
 
