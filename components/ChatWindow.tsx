@@ -256,12 +256,13 @@ export default function ChatWindow() {
             </h1>
           </div>
         </div>
-        {/* 정책상담신청 버튼 - 상담신청 폼 페이지로 이동 */}
+        {/* 정책상담신청 버튼 - 주거금융 탭과 동일한 딥블루+골드 스타일 */}
         <a
           href="/?consultation=open"
-          className="apply-cta-btn"
+          className="filter-toggle filter-toggle-active"
+          style={{ textDecoration: 'none' }}
         >
-          <span>📋 정책상담신청</span>
+          📋 정책상담신청
         </a>
       </header>
 
