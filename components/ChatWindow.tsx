@@ -1,7 +1,7 @@
 'use client';
 // ============================================
 // components/ChatWindow.tsx
-// 도와줘룸즈 AI챗봇 '루미' 주거특화 메인 채팅창 컴포넌트
+// 청춘스럽 청년정챗 AI봇 메인 채팅창 컴포넌트
 // - 질문 클릭/전송 시 추천 질문 탭 자동 접힘 기능 적용!
 // ============================================
 
@@ -89,7 +89,7 @@ export default function ChatWindow() {
     {
       id: uuidv4(),
       role: 'assistant',
-      content: `안녕하세요! 🏠\n**도와줘룸즈 AI챗봇 '루미'**입니다.\n\n청년들을 위해 주거, 일자리, 금융, 복지, 창업 정책 정보와 대전 10개 청년공간 소식을 정확하고 친절하게 안내해 드려요.\n\n하단 분야별 탭을 클릭하여 궁금한 내용을 바로 물어보세요. 😊`,
+      content: `안녕하세요! 🌟\n**청춘스럽 청년정챗 AI봇**입니다.\n\n청년들을 위해 주거, 일자리, 금융, 복지, 창업 정책 정보와 대전 10개 청년공간 소식을 정확하고 친절하게 안내해 드려요.\n\n하단 분야별 탭을 클릭하여 궁금한 내용을 바로 물어보세요. 😊`,
     },
   ]);
 
@@ -247,24 +247,22 @@ export default function ChatWindow() {
             <div className="header-logo-container">
               <img
                 src="/logo.png"
-                alt="도와줘룸즈 루미 캐릭터 로고"
+                alt="청춘스럽 청년정챗 AI봇 로고"
                 className="header-logo-img"
               />
             </div>
             <h1 className="header-main-text">
-              <span>도와줘룸즈 AI챗봇 '루미'</span>
+              <span>청춘스럽 청년정챗 AI봇</span>
             </h1>
           </div>
         </div>
-        {/* 신청하기 버튼을 오른쪽 끝으로 이동 */}
+        {/* 정책상담신청 버튼 - 상담신청 폼 페이지로 이동 */}
         <a
-          href="https://helproomz.imweb.me/"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/?consultation=open"
           className="apply-cta-btn"
         >
-          <span className="apply-btn-full">🏠 도와줘룸즈 신청하기</span>
-          <span className="apply-btn-short">🏠 방구하기 신청</span>
+          <span className="apply-btn-full">📋 정책상담신청</span>
+          <span className="apply-btn-short">📋 상담신청</span>
         </a>
       </header>
 
