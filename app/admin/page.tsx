@@ -43,6 +43,19 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }>
   '취소':     { bg: '#FEE2E2', color: '#991B1B', label: '❌ 취소' },
 };
 
+// ─── 상담사별 캘린더 색상 (이름 기준, 최대 4명까지 확장 가능) ───
+const COUNSELOR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
+  '권세한': { bg: '#EDE9FE', border: '#7C3AED', text: '#5B21B6', dot: '#7C3AED' }, // 보라
+  '윤정욱': { bg: '#FEF3C7', border: '#D97706', text: '#92400E', dot: '#D97706' }, // 주황
+  '미배정': { bg: '#F1F5F9', border: '#94A3B8', text: '#64748B', dot: '#94A3B8' }, // 회색
+};
+const DEFAULT_COUNSELOR_COLOR = COUNSELOR_COLORS['미배정'];
+
+function getCounselorColor(counselorName?: string) {
+  if (!counselorName) return DEFAULT_COUNSELOR_COLOR;
+  return COUNSELOR_COLORS[counselorName] || DEFAULT_COUNSELOR_COLOR;
+}
+
 // ─── 시간 옵션 목록 (09:00 ~ 20:00) ───
 const TIME_OPTIONS = [
   { value: '09:00', label: '오전 09:00' },
@@ -125,6 +138,7 @@ export default function AdminPage() {
 
   // 필터 및 검색
   const [filterStatus, setFilterStatus] = useState<string>('전체');
+  const [filterCounselor, setFilterCounselor] = useState<string>('전체'); // 상담사별 필터
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   // ── [한글 100% 안전 드롭다운 상태] ──
@@ -328,9 +342,12 @@ export default function AdminPage() {
         r.phone.includes(q) ||
         r.category.toLowerCase().includes(q) ||
         r.region.toLowerCase().includes(q);
-      return matchStatus && matchSearch;
+      // 상담사 필터: 이름으로 매칭
+      const counselorName = counselors.find(c => c.id === r.counselor_id)?.name || '미배정';
+      const matchCounselor = filterCounselor === '전체' || counselorName === filterCounselor;
+      return matchStatus && matchSearch && matchCounselor;
     });
-  }, [requests, filterStatus, searchTerm]);
+  }, [requests, filterStatus, filterCounselor, searchTerm, counselors]);
 
   // ── 캘린더 날짜 계산 ──
   const calendarDays = useMemo(() => {
@@ -583,6 +600,7 @@ export default function AdminPage() {
         {viewMode === 'list' && (
           <div style={styles.cardContainer} className="admin-card-container">
             <div style={styles.toolbar} className="admin-toolbar">
+              {/* 상태 필터 */}
               <div style={styles.filterButtonGroup}>
                 {['전체', '접수대기', '매칭완료', '상담완료', '취소'].map((s) => (
                   <button
@@ -593,6 +611,37 @@ export default function AdminPage() {
                     {s} ({s === '전체' ? requests.length : requests.filter(r => r.status === s).length})
                   </button>
                 ))}
+              </div>
+              {/* 상담사별 필터 */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                {(['전체', ...counselors.map(c => c.name), '미배정'] as string[]).map((cn) => {
+                  const cnt = cn === '전체'
+                    ? requests.length
+                    : cn === '미배정'
+                      ? requests.filter(r => !r.counselor_id).length
+                      : requests.filter(r => counselors.find(c => c.id === r.counselor_id)?.name === cn).length;
+                  const col = getCounselorColor(cn === '전체' ? undefined : cn);
+                  const isActive = filterCounselor === cn;
+                  return (
+                    <button
+                      key={cn}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        border: `1.5px solid ${isActive ? col.border : '#CBD5E1'}`,
+                        background: isActive ? col.bg : '#F8FAFC',
+                        color: isActive ? col.text : '#64748B',
+                        transition: 'all 0.15s',
+                      }}
+                      onClick={() => setFilterCounselor(cn)}
+                    >
+                      {cn === '전체' ? `👥 전체 (${cnt})` : `${cn} (${cnt})`}
+                    </button>
+                  );
+                })}
               </div>
 
               <input
@@ -651,6 +700,23 @@ export default function AdminPage() {
                             💭 "{r.concern}"
                           </p>
                         )}
+                        {r.admin_memo && (
+                          <p style={{
+                            fontSize: 12,
+                            color: '#5B21B6',
+                            background: '#EDE9FE',
+                            padding: '4px 8px',
+                            borderRadius: 6,
+                            border: '1px solid #C4B5FD',
+                            marginTop: 4,
+                            fontWeight: 600,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            📝 메모: {r.admin_memo}
+                          </p>
+                        )}
                       </div>
 
                       <button style={styles.cardActionBtn}>
@@ -704,8 +770,15 @@ export default function AdminPage() {
               </div>
 
               <div style={styles.calLegend}>
-                <span style={styles.legendItem}><span style={{ ...styles.legendDot, background: '#166534' }} /> 매칭완료</span>
-                <span style={styles.legendItem}><span style={{ ...styles.legendDot, background: '#0C4A6E' }} /> 상담완료</span>
+                {[...counselors.map(c => c.name), '미배정'].map(cn => {
+                  const col = getCounselorColor(cn);
+                  return (
+                    <span key={cn} style={styles.legendItem}>
+                      <span style={{ ...styles.legendDot, background: col.dot }} />
+                      {cn}
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
@@ -777,15 +850,17 @@ export default function AdminPage() {
                               }
                               return timePart.slice(0, 5);
                             })();
-                            const isDone = ev.status === '상담완료';
+                            const calCounselor = counselors.find(c => c.id === ev.counselor_id);
+                            const calColor = getCounselorColor(calCounselor?.name);
 
                             return (
                               <div
                                 key={ev.id}
                                 style={{
                                   ...styles.calEventCard,
-                                  background: isDone ? '#E0F2FE' : '#DCFCE7',
-                                  borderLeft: `3px solid ${isDone ? '#0C4A6E' : '#166534'}`,
+                                  background: calColor.bg,
+                                  borderLeft: `3px solid ${calColor.border}`,
+                                  color: calColor.text,
                                 }}
                                 onClick={() => openDetailModal(ev)}
                                 title={`${ev.name} | ${timeStr} | ${counselor?.name || '담당자'} | 클릭하여 수정`}
